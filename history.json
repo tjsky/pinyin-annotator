@@ -1,6 +1,6 @@
 {
   "repository": "tjsky/pinyin-annotator",
-  "updated": "2026-10-02",
+  "updated": "2026-10-03",
   "points": [
     {
       "date": "2026-09-13",
@@ -81,6 +81,10 @@
     {
       "date": "2026-10-02",
       "stars": 349
+    },
+    {
+      "date": "2026-10-03",
+      "stars": 350
     }
   ]
 }
