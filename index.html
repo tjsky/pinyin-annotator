@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>拼音注音小助手 - 一键给文章加拼音/注音，教材式注音排版工具</title>
+<meta name="description" content="把文章一键转成汉字上方带拼音或注音的读物：教材式排版、一/不变调、轻声儿化自动处理、台湾读音与注音符号（ㄅㄆㄇ，横排/直排）、OpenCC 简繁转换、A4 分页打印导出，纯本地运行离线可用。提供轻量版 / 主线版 / 完整词典版 / 注音版四个版本。">
+<meta name="keywords" content="拼音注音,汉字加拼音,注音工具,拼音排版,儿童拼音读物,一不变调,轻声,儿化音,注音符号,ㄅㄆㄇ,台湾读音,简繁转换,A4打印,离线工具">
+<link rel="canonical" href="https://pinyin-annotator.tjsky.net/">
+<meta property="og:title" content="拼音注音小助手 - 一键给文章加拼音/注音">
+<meta property="og:description" content="教材式上下拼音排版，一/不变调、轻声、儿化按教材习惯自动处理，台湾读音与注音符号、简繁转换，A4 分页打印导出，纯本地离线可用。四个版本按需选择。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pinyin-annotator.tjsky.net/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23e8955a'/%3E%3Cstop offset='1' stop-color='%23d97b3f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='url(%23g)'/%3E%3Ctext x='32' y='24' text-anchor='middle' font-family='Arial,sans-serif' font-size='15' font-weight='700' fill='%23fff7ec'%3Ep%C4%ABn%3C/text%3E%3Crect x='15' y='30.5' width='34' height='2.5' rx='1.25' fill='%23ffffff' opacity='.85'/%3E%3Ctext x='32' y='56' text-anchor='middle' font-family='KaiTi,STKaiti,SimSun,serif' font-size='32' font-weight='700' fill='%23ffffff'%3E%E6%8B%BC%3C/text%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "拼音注音小助手",
+  "url": "https://pinyin-annotator.tjsky.net/",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (web browser)",
+  "description": "把文章一键转成汉字上方带拼音或注音的读物：教材式排版、一/不变调、轻声儿化自动处理、台湾读音与注音符号、简繁转换、A4 分页打印导出，纯本地运行离线可用。",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+  "featureList": "教材式上下拼音排版,一/不变调开关,轻声自动不标调,儿化音双模式,智能中文分词,单字手动改读音,易错点高亮,台湾读音(臺灣《重編國語辭典修訂本》),注音符号ㄅㄆㄇ(横排/直排),简繁转换OpenCC,A4 自动分页与打印导出,阅读模式,四种复制格式,离线可用",
+  "isAccessibleForFree": true
+}
+</script>
+<style>
+  :root {
+    --bg: #f6f3ec;
+    --paper: #fffdf8;
+    --ink: #3a3733;
+    --ink-soft: #7a7468;
+    --line: #e6dfd2;
+    --accent: #d97b3f;
+    --accent-dark: #b65f2a;
+    --accent-light: #fbeee2;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 48px; }
+  /* 界面语言切换（右上角） */
+  #lang-sw { position: absolute; top: 18px; right: 20px; display: flex; gap: 6px; }
+  #lang-sw button {
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink-soft);
+    border-radius: 999px; padding: 4px 12px; font-size: 12.5px; cursor: pointer;
+  }
+  #lang-sw button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  header.hero { text-align: center; margin-bottom: 28px; }
+  header.hero .logo { width: 64px; height: 64px; border-radius: 14px; vertical-align: -14px; }
+  header.hero h1 { font-size: 30px; margin-top: 14px; letter-spacing: 1px; }
+  header.hero p.tagline { color: var(--ink-soft); margin-top: 8px; font-size: 16px; }
+  header.hero p.tagline b { color: var(--accent-dark); }
+
+  /* 老用户记忆跳转条 */
+  #resume {
+    max-width: 640px; margin: 0 auto 24px; background: var(--paper);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    box-shadow: 0 2px 10px rgba(90,70,40,.06);
+  }
+  #resume[hidden] { display: none; }
+  #resume .msg { flex: 1; min-width: 200px; }
+  #resume .msg b { color: var(--accent-dark); }
+  #resume button {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    border-radius: 8px; padding: 7px 16px; font-size: 14px; cursor: pointer;
+  }
+  #resume button.ghost { background: transparent; color: var(--accent-dark); }
+
+  /* 版本卡片 */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 12px; }
+  @media (max-width: 980px) { .cards { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px 22px 20px; position: relative; display: flex; flex-direction: column;
+    box-shadow: 0 2px 10px rgba(90,70,40,.06);
+  }
+  .card.reco { border-color: var(--accent); box-shadow: 0 4px 16px rgba(217,123,63,.16); }
+  .badge {
+    position: absolute; top: -12px; right: 16px; background: var(--accent); color: #fff;
+    font-size: 12px; padding: 3px 12px; border-radius: 999px; letter-spacing: 1px;
+  }
+  .card h2 { font-size: 18px; margin-bottom: 2px; }
+  .card .file { color: var(--ink-soft); font-size: 12.5px; margin-bottom: 10px; }
+  .card ul { list-style: none; margin: 0 0 14px; flex: 1; }
+  .card li { padding: 3px 0 3px 20px; position: relative; font-size: 13.5px; color: var(--ink); }
+  .card li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .card li.dim::before { content: "－"; color: #c9c2b4; }
+  .card li.dim { color: var(--ink-soft); }
+  .card .size { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 12px; }
+  .card .go {
+    display: block; text-align: center; text-decoration: none;
+    background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 11px 0; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+  }
+  .card .go:hover { background: var(--accent-dark); }
+  .card .go.plain { background: var(--accent-light); color: var(--accent-dark); }
+  .card .go.plain:hover { background: #f6dfc9; }
+
+  /* Plus 预取进度 */
+  #progress {
+    max-width: 640px; margin: 20px auto 0; background: var(--paper);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px;
+  }
+  #progress[hidden] { display: none; }
+  #progress .bar { position: relative; height: 10px; background: var(--accent-light); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+  #progress .bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .15s; }
+  /* 不确定进度：流动光带（准备中/无法获取进度时，避免看起来卡死在 0%） */
+  #progress .bar.indet::after {
+    content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: indet-slide 1.1s linear infinite;
+  }
+  @keyframes indet-slide { to { left: 100%; } }
+  #progress .txt { font-size: 13.5px; color: var(--ink-soft); }
+  #progress .txt b { color: var(--accent-dark); }
+
+  /* 通用区块 */
+  section { margin-top: 40px; }
+  section > h2 { font-size: 21px; margin-bottom: 14px; }
+  .feat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 860px) { .feat { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .feat { grid-template-columns: 1fr; } }
+  .feat div { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; font-size: 14px; }
+  .feat b { color: var(--accent-dark); }
+  table { width: 100%; border-collapse: collapse; background: var(--paper); border-radius: var(--radius); overflow: hidden; font-size: 13.5px; }
+  th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: center; }
+  th { background: var(--accent-light); color: var(--accent-dark); font-weight: 600; }
+  td:first-child, th:first-child { text-align: left; }
+  .faq div { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; font-size: 14.5px; }
+  .faq b { color: var(--accent-dark); }
+  footer { margin-top: 44px; text-align: center; color: var(--ink-soft); font-size: 13.5px; }
+  footer a { color: var(--accent-dark); }
+</style>
+</head>
+<body>
+<div class="wrap" style="position:relative;">
+  <div id="lang-sw" role="group" aria-label="Language">
+    <button type="button" data-lang="cn" class="on">简</button>
+    <button type="button" data-lang="tw">繁</button>
+    <button type="button" data-lang="en">EN</button>
+  </div>
+  <header class="hero">
+    <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8955a"/><stop offset="1" stop-color="#d97b3f"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="14" fill="url(#g)"/><text x="32" y="24" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#fff7ec">pīn</text><rect x="15" y="30.5" width="34" height="2.5" rx="1.25" fill="#ffffff" opacity=".85"/><text x="32" y="56" text-anchor="middle" font-family="KaiTi,STKaiti,SimSun,serif" font-size="32" font-weight="700" fill="#ffffff">拼</text></svg>
+    <h1 data-i18n="hd.title">拼音注音小助手</h1>
+    <p class="tagline" data-i18n="hd.tagline">粘贴文章 → <b>汉字上方自动生成拼音 / 注音</b> → 打印 / 导出 PDF，专为幼儿园到小学低年级的孩子做朗读材料</p>
+  </header>
+
+  <div id="resume" hidden>
+    <span class="msg"><span data-i18n="resume.used">上次使用：</span><b id="resume-name"></b>，<b id="resume-sec">3</b> <span data-i18n="resume.auto">秒后自动进入</span></span>
+    <button id="resume-go" type="button" data-i18n="resume.go">立即进入</button>
+    <button id="resume-cancel" type="button" class="ghost" data-i18n="resume.cancel">换个版本</button>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="card-mini">
+      <h2 data-i18n="v.mini.name">轻量版</h2>
+      <p class="file">mini.html · <span data-i18n="v.mini.size">约 0.9 MB</span></p>
+      <ul>
+        <li data-i18n="v.mini.li1">汉字逐字注音</li>
+        <li data-i18n="v.mini.li2">一 / 不变调、轻声、儿化全支持</li>
+        <li data-i18n="v.mini.li3">界面简 / 繁 / EN 可切换</li>
+        <li data-i18n="v.mini.li4">A4 分页打印 / 导出 PDF</li>
+        <li class="dim" data-i18n="v.mini.li5">无分词（词组不连排）</li>
+      </ul>
+      <p class="size" data-i18n="v.mini.fit">适合：只要注音排版，设备老旧或流量敏感</p>
+      <button class="go plain" data-ver="mini" data-i18n="v.mini.go">进入轻量版</button>
+    </div>
+
+    <div class="card reco" id="card-pinyin">
+      <span class="badge" data-i18n="v.badge">推荐</span>
+      <h2 data-i18n="v.pinyin.name">主线版</h2>
+      <p class="file">pinyin.html · <span data-i18n="v.pinyin.size">约 1.4 MB</span></p>
+      <ul>
+        <li data-i18n="v.pinyin.li1">包含轻量版全部功能</li>
+        <li data-i18n="v.pinyin.li2">智能分词：词组的字连排、词间留空隙</li>
+        <li data-i18n="v.pinyin.li3">内置 3 万常用词，多音字读音更准（银行 yín háng）</li>
+        <li data-i18n="v.pinyin.li4">点击生字改读音、断词 / 合词</li>
+        <li data-i18n="v.pinyin.li5">可选台湾读音与注音符号（ㄅㄆㄇ）</li>
+      </ul>
+      <p class="size" data-i18n="v.pinyin.fit">适合：日常给娃做朗读材料（大多数家庭选这个）</p>
+      <button class="go" data-ver="pinyin" data-i18n="v.pinyin.go">进入主线版</button>
+    </div>
+
+    <div class="card" id="card-plus">
+      <h2 data-i18n="v.plus.name">完整词典版</h2>
+      <p class="file">plus.html · <span data-i18n="v.plus.size">约 7 MB</span></p>
+      <ul>
+        <li data-i18n="v.plus.li1">包含主线版全部功能</li>
+        <li data-i18n="v.plus.li2">词典扩充到 33.7 万词</li>
+        <li data-i18n="v.plus.li3">成语、专有名词也能整体成词（刻舟求剑、黔驴技穷）</li>
+        <li data-i18n="v.plus.li4">OpenCC 简 ↔ 繁一键转换</li>
+        <li data-i18n="v.plus.li5">仅首次加载稍慢，之后浏览器缓存秒开</li>
+      </ul>
+      <p class="size" data-i18n="v.plus.fit">适合：老师做成语 / 进阶教材，对分词要求高</p>
+      <button class="go plain" data-ver="plus" data-i18n="v.plus.go">进入完整词典版</button>
+    </div>
+
+    <div class="card" id="card-zhuyin">
+      <h2 data-i18n="v.zhuyin.name">注音版</h2>
+      <p class="file">zhuyin.html · <span data-i18n="v.zhuyin.size">约 2 MB</span></p>
+      <ul>
+        <li data-i18n="v.zhuyin.li1">預設繁體介面（可切简 / EN）</li>
+        <li data-i18n="v.zhuyin.li2">注音符號 ㄅㄆㄇ，橫排 / 直排（標在字右側）可切換</li>
+        <li data-i18n="v.zhuyin.li3">臺灣讀音：教育部《重編國語辭典修訂本》</li>
+        <li data-i18n="v.zhuyin.li4">OpenCC 簡 ↔ 繁一鍵轉換</li>
+        <li data-i18n="v.zhuyin.li5">智慧分詞，可切回漢語拼音</li>
+      </ul>
+      <p class="size" data-i18n="v.zhuyin.fit">适合：港澳台用户 / 注音教学 / 海外华语学习者</p>
+      <button class="go plain" data-ver="zhuyin" data-i18n="v.zhuyin.go">进入注音版</button>
+    </div>
+  </div>
+
+  <div id="progress" hidden>
+    <span class="txt" id="prog-txt"></span>
+    <div class="bar indet" id="prog-barwrap"><i id="prog-bar"></i></div>
+  </div>
+
+  <section>
+    <h2 data-i18n="sec.feat">核心功能</h2>
+    <div class="feat">
+      <div data-i18n="f.1"><b>教材式排版</b>：汉字上方标拼音，轻声自动不标调（妈妈 mā ma）</div>
+      <div data-i18n="f.2"><b>一 / 不变调开关</b>：一个 → yí gè，也可切回标原调</div>
+      <div data-i18n="f.3"><b>儿化音双模式</b>：花儿 huā er / huār，人名误判点一下就改</div>
+      <div data-i18n="f.4"><b>台湾读音</b>：台湾地区教育主管部门《重編國語辭典修訂本》1.5 万词差异，垃圾 ㄌㄜˋㄙㄜˋ</div>
+      <div data-i18n="f.5"><b>注音符号</b>：ㄅㄆㄇ 可切横排 / 直排——横写标在字上方，或竖排标注在字右侧</div>
+      <div data-i18n="f.6"><b>简繁转换</b>：OpenCC 双向转换（注音版 / 完整版）</div>
+      <div data-i18n="f.7"><b>A4 所见即所印</b>：自动分页不留大空白，导出 PDF 一页不少</div>
+      <div data-i18n="f.8"><b>易错点高亮</b>：多音字、的地得、一/不 加底纹，打印核对</div>
+      <div data-i18n="f.9"><b>纯本地运行</b>：文章不上传服务器，断网双击就能用</div>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i18n="sec.cmp">四个版本怎么选</h2>
+    <table>
+      <tr>
+        <th></th>
+        <th data-i18n="t.mini">轻量版 mini</th>
+        <th><span data-i18n="t.pinyin">主线版 pinyin</span>（<span data-i18n="t.reco">推荐</span>）</th>
+        <th data-i18n="t.plus">完整词典版 plus</th>
+        <th data-i18n="t.zhuyin">注音版 zhuyin</th>
+      </tr>
+      <tr><td data-i18n="t.r1">体积</td><td data-i18n="t.r1v">约 0.9 MB</td><td>约 1.4 MB</td><td>约 7 MB</td><td>约 2 MB</td></tr>
+      <tr><td data-i18n="t.r2">逐字注音</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td data-i18n="t.r3">智能分词（词组连排）</td><td>—</td><td>✅ 3 万常用词</td><td>✅ 33.7 万全量词</td><td>✅ 3 万常用词</td></tr>
+      <tr><td data-i18n="t.r4">成语 / 长尾词成词</td><td>—</td><td data-i18n="t.r4v">部分</td><td>✅</td><td data-i18n="t.r4v">部分</td></tr>
+      <tr><td data-i18n="t.r5">注音符号 / 台湾读音</td><td>✅</td><td>✅</td><td>✅</td><td>✅ 默认开启</td></tr>
+      <tr><td data-i18n="t.r6">简 ↔ 繁转换</td><td>—</td><td>—</td><td>✅</td><td>✅</td></tr>
+      <tr><td data-i18n="t.r7">适合</td><td data-i18n="t.r7a">只要注音排版</td><td data-i18n="t.r7b">日常家庭使用</td><td data-i18n="t.r7c">老师 / 进阶教学</td><td data-i18n="t.r7d">港澳台 / 注音教学</td></tr>
+    </table>
+  </section>
+
+  <section class="faq">
+    <h2 data-i18n="sec.faq">常见问题</h2>
+    <div data-i18n="faq.1"><b>需要联网吗？</b><br>不需要。四个版本都是单文件 HTML，拼音引擎、词典、台湾读音表、OpenCC 转换数据全部内嵌，断网双击就能用；联网仅用于可选的霞鹜文楷网络字体和引擎更新检查。</div>
+    <div data-i18n="faq.2"><b>文章内容会被上传吗？</b><br>不会。纯前端工具，全部处理都在你自己的浏览器里完成，没有任何请求把内容发往服务器。</div>
+    <div data-i18n="faq.3"><b>「台湾读音」的数据来源？</b><br>台湾地区教育主管部门《重編國語辭典修訂本》（g0v 萌典开放数据），覆盖约 1.5 万个两岸读音不同的词与近 200 个单字，如垃圾 ㄌㄜˋㄙㄜˋ、星期 ㄑ丨ˊ；拼音与注音模式都生效，可随时切回大陆读音。</div>
+    <div data-i18n="faq.4"><b>选错了版本怎么办？</b><br>随时可以回到本页（浏览器地址栏去掉文件名回车即可）换版本，四个版本的操作方式完全一致，输入内容和样式设置互相独立。</div>
+    <div data-i18n="faq.5"><b>多音字能保证全对吗？</b><br>不能保证 100%。各版本内嵌词典不同，多音字正确率也不同（完整词典版最高）。用于教学请勾选「易错点高亮」逐字核对，发现错误点击预览中对应的字即可改为正确读音——每个版本的预览区底部也有同样的提醒。</div>
+  </section>
+
+  <footer>
+    <span data-i18n="ft.1">开源免费（MIT）</span> · <a href="https://github.com/tjsky/pinyin-annotator" rel="noopener" data-i18n="ft.2">GitHub 源码</a> · <span data-i18n="ft.3">也可以把任一版本文件直接发给别人，双击即用</span>
+  </footer>
+</div>
+
+<script>
+/* ===== i18n：简 / 繁 / EN（简体为静态源语言；与工具页共用 py-lang 记忆）===== */
+var I18N = {
+  tw: {
+    "doc.title": "拼音注音小助手 - 一鍵給文章加拼音或注音，教材式注音排版工具",
+    "hd.title": "拼音注音小助手",
+    "hd.tagline": "貼上文章 → <b>漢字上方自動生成拼音 / 注音</b> → 列印 / 匯出 PDF，專為幼兒園到小學低年級的孩子做朗讀教材",
+    "resume.used": "上次使用：", "resume.auto": "秒後自動進入",
+    "resume.go": "立即進入", "resume.cancel": "換個版本",
+    "v.badge": "推薦",
+    "v.mini.name": "輕量版", "v.mini.size": "約 0.9 MB", "v.mini.go": "進入輕量版",
+    "v.mini.li1": "漢字逐字注音", "v.mini.li2": "一 / 不變調、輕聲、兒化全支援",
+    "v.mini.li3": "介面簡 / 繁 / EN 可切換", "v.mini.li4": "A4 分頁列印 / 匯出 PDF",
+    "v.mini.li5": "無分詞（詞組不連排）", "v.mini.fit": "適合：只要注音排版，裝置老舊或流量敏感",
+    "v.pinyin.name": "主線版", "v.pinyin.size": "約 1.4 MB", "v.pinyin.go": "進入主線版",
+    "v.pinyin.li1": "包含輕量版全部功能", "v.pinyin.li2": "智慧分詞：詞組的字連排、詞間留空隙",
+    "v.pinyin.li3": "內建 3 萬常用詞，多音字讀音更準（銀行 yín háng）",
+    "v.pinyin.li4": "點擊生字改讀音、斷詞 / 合詞", "v.pinyin.li5": "可選臺灣讀音與注音符號（ㄅㄆㄇ）",
+    "v.pinyin.fit": "適合：日常給孩子做朗讀教材（大多數家庭選這個）",
+    "v.plus.name": "完整詞典版", "v.plus.size": "約 7 MB", "v.plus.go": "進入完整詞典版",
+    "v.plus.li1": "包含主線版全部功能", "v.plus.li2": "詞典擴充到 33.7 萬詞",
+    "v.plus.li3": "成語、專有名詞也能整體成詞（刻舟求劍、黔驢技窮）",
+    "v.plus.li4": "OpenCC 簡 ↔ 繁一鍵轉換", "v.plus.li5": "僅首次載入稍慢，之後瀏覽器快取秒開",
+    "v.plus.fit": "適合：老師做成語 / 進階教材，對分詞要求高",
+    "v.zhuyin.name": "注音版", "v.zhuyin.size": "約 2 MB", "v.zhuyin.go": "進入注音版",
+    "v.zhuyin.li1": "預設繁體介面（可切簡 / EN）", "v.zhuyin.li2": "注音符號 ㄅㄆㄇ，橫排 / 直排（標在字右側）可切換",
+    "v.zhuyin.li3": "臺灣讀音：教育部《重編國語辭典修訂本》", "v.zhuyin.li4": "OpenCC 簡 ↔ 繁一鍵轉換",
+    "v.zhuyin.li5": "智慧分詞，可切回漢語拼音",
+    "v.zhuyin.fit": "適合：港澳台使用者 / 注音教學 / 海外華語學習者",
+    "sec.feat": "核心功能", "sec.cmp": "四個版本怎麼選", "sec.faq": "常見問題",
+    "f.1": "<b>教材式排版</b>：漢字上方標拼音，輕聲自動不標調（媽媽 mā ma）",
+    "f.2": "<b>一 / 不變調開關</b>：一個 → yí gè，也可切回標原調",
+    "f.3": "<b>兒化音雙模式</b>：花兒 huā er / huār，人名誤判點一下就改",
+    "f.4": "<b>臺灣讀音</b>：教育部《重編國語辭典修訂本》1.5 萬詞差異，垃圾 ㄌㄜˋㄙㄜˋ",
+    "f.5": "<b>注音符號</b>：ㄅㄆㄇ 可切橫排 / 直排——橫寫標在字上方，或直排在字右側",
+    "f.6": "<b>簡繁轉換</b>：OpenCC 雙向轉換（注音版 / 完整版）",
+    "f.7": "<b>A4 所見即所印</b>：自動分頁不留大空白，匯出 PDF 一頁不少",
+    "f.8": "<b>易錯點高亮</b>：多音字、的地得、一/不 加底紋，列印核對",
+    "f.9": "<b>純本地運行</b>：文章不上傳伺服器，斷網雙擊就能用",
+    "t.mini": "輕量版 mini", "t.pinyin": "主線版 pinyin", "t.reco": "推薦",
+    "t.plus": "完整詞典版 plus", "t.zhuyin": "注音版 zhuyin",
+    "t.r1": "體積", "t.r1v": "約 0.9 MB", "t.r2": "逐字注音",
+    "t.r3": "智慧分詞（詞組連排）", "t.r4": "成語 / 長尾詞成詞", "t.r4v": "部分",
+    "t.r5": "注音符號 / 臺灣讀音", "t.r5v": "✅ 預設開啟",
+    "t.r6": "簡 ↔ 繁轉換", "t.r7": "適合",
+    "t.r7a": "只要注音排版", "t.r7b": "日常家庭使用", "t.r7c": "老師 / 進階教學", "t.r7d": "港澳台 / 注音教學",
+    "faq.1": "<b>需要連網嗎？</b><br>不需要。四個版本都是單檔案 HTML，拼音引擎、詞典、臺灣讀音表、OpenCC 轉換資料全部內嵌，斷網雙擊就能用；連網僅用於可選的霞鶩文楷網路字型和引擎更新檢查。",
+    "faq.2": "<b>文章內容會被上傳嗎？</b><br>不會。純前端工具，全部處理都在你自己的瀏覽器裡完成，沒有任何請求把內容發往伺服器。",
+    "faq.3": "<b>「臺灣讀音」的資料來源？</b><br>教育部《重編國語辭典修訂本》（g0v 萌典開放資料），覆蓋約 1.5 萬個兩岸讀音不同的詞與近 200 個單字，如垃圾 ㄌㄜˋㄙㄜˋ、星期 ㄑ丨ˊ；拼音與注音模式都生效，可隨時切回大陸讀音。",
+    "faq.4": "<b>選錯了版本怎麼辦？</b><br>隨時可以回到本頁（瀏覽器網址列去掉檔名按 Enter 即可）換版本，四個版本的操作方式完全一致，輸入內容和樣式設定互相獨立。",
+    "faq.5": "<b>多音字能保證全對嗎？</b><br>無法保證 100%。各版本內建詞典不同，多音字正確率也不同（完整詞典版最高）。用於教學請勾選「易錯點高亮」逐字核對，發現錯誤點擊預覽中對應的字即可改為正確讀音——每個版本的預覽區底部也有同樣的提醒。",
+    "ft.1": "開源免費（MIT）", "ft.2": "GitHub 原始碼", "ft.3": "也可以把任一版本檔案直接傳給別人，雙擊即用",
+    "prog.prep": "正在準備完整詞典版…（約 7 MB）", "prog.dl": "正在下載完整詞典版：<b>{p}%</b>（{a} / {t} MB），下載完成後自動進入…",
+    "prog.recv": "正在下載完整詞典版：已接收 <b>{a}</b> / 約 7 MB…", "prog.stall": "正在下載完整詞典版…已接收 <b>{a}</b> / 約 7 MB"
+  },
+  en: {
+    "doc.title": "Pinyin & Zhuyin Annotator - Add pinyin or zhuyin above Chinese characters, textbook style",
+    "hd.title": "拼音注音小助手",
+    "hd.tagline": "Paste an article → <b>pinyin or zhuyin is generated above each character</b> → print / export PDF. Reading materials for kindergarten and lower-grade kids",
+    "resume.used": "Last used: ", "resume.auto": "s — entering automatically",
+    "resume.go": "Enter now", "resume.cancel": "Pick another",
+    "v.badge": "Recommended",
+    "v.mini.name": "Lite", "v.mini.size": "~0.9 MB", "v.mini.go": "Open Lite",
+    "v.mini.li1": "Per-character pinyin", "v.mini.li2": "yī/bù tone sandhi, neutral tone, erhua",
+    "v.mini.li3": "UI: Simplified / Traditional / EN", "v.mini.li4": "A4 pagination, print / PDF",
+    "v.mini.li5": "No word segmentation", "v.mini.fit": "Best for: annotation only, old devices or tight bandwidth",
+    "v.pinyin.name": "Standard", "v.pinyin.size": "~1.4 MB", "v.pinyin.go": "Open Standard",
+    "v.pinyin.li1": "Everything in Lite", "v.pinyin.li2": "Smart segmentation: words grouped, gaps between words",
+    "v.pinyin.li3": "Built-in 30k common words for accurate polyphones (银行 yín háng)",
+    "v.pinyin.li4": "Click a character to fix readings / re-segment",
+    "v.pinyin.li5": "Optional Taiwan readings & Zhuyin (ㄅㄆㄇ)",
+    "v.pinyin.fit": "Best for: everyday reading sheets (most families)",
+    "v.plus.name": "Full Dictionary", "v.plus.size": "~7 MB", "v.plus.go": "Open Full Dictionary",
+    "v.plus.li1": "Everything in Standard", "v.plus.li2": "Dictionary expanded to 337k words",
+    "v.plus.li3": "Idioms & proper nouns segmented as words (刻舟求剑, 黔驴技穷)",
+    "v.plus.li4": "One-click Simplified ↔ Traditional (OpenCC)",
+    "v.plus.li5": "Slower first load, then instant from browser cache",
+    "v.plus.fit": "Best for: teachers, advanced material, best segmentation",
+    "v.zhuyin.name": "Zhuyin", "v.zhuyin.size": "~2 MB", "v.zhuyin.go": "Open Zhuyin",
+    "v.zhuyin.li1": "Traditional Chinese UI by default (简 / EN switchable)",
+    "v.zhuyin.li2": "Zhuyin ㄅㄆㄇ, horizontal / vertical (right of character) layouts",
+    "v.zhuyin.li3": "Taiwan readings: MOE《重編國語辭典修訂本》",
+    "v.zhuyin.li4": "One-click Simplified ↔ Traditional (OpenCC)",
+    "v.zhuyin.li5": "Smart segmentation; switch back to Hanyu Pinyin",
+    "v.zhuyin.fit": "Best for: TW/HK/MO users, Zhuyin teaching, CSL learners",
+    "sec.feat": "Key Features", "sec.cmp": "Which version?", "sec.faq": "FAQ",
+    "f.1": "<b>Textbook layout</b>: pinyin above characters, neutral tone unmarked (妈妈 mā ma)",
+    "f.2": "<b>yī/bù tone sandhi toggle</b>: 一个 → yí gè, or keep base tones",
+    "f.3": "<b>Erhua modes</b>: 花儿 huā er / huār, fix false positives with one click",
+    "f.4": "<b>Taiwan readings</b>: MOE dictionary, 15k cross-strait differences (垃圾 ㄌㄜˋㄙㄜˋ)",
+    "f.5": "<b>Zhuyin</b>: ㄅㄆㄇ with horizontal / vertical layouts — written above characters or stacked to their right",
+    "f.6": "<b>Simplified ↔ Traditional</b>: OpenCC conversion (Zhuyin / Full versions)",
+    "f.7": "<b>WYSIWYG A4</b>: automatic pagination, PDF export without cut-off pages",
+    "f.8": "<b>Mistake highlighting</b>: polyphones, 的/地/得, yī/bù shaded for proofreading",
+    "f.9": "<b>Runs locally</b>: nothing uploaded, works offline",
+    "t.mini": "Lite mini", "t.pinyin": "Standard pinyin", "t.reco": "rec.",
+    "t.plus": "Full plus", "t.zhuyin": "Zhuyin",
+    "t.r1": "Size", "t.r1v": "~0.9 MB", "t.r2": "Per-character pinyin",
+    "t.r3": "Smart segmentation", "t.r4": "Idioms / rare words", "t.r4v": "partial",
+    "t.r5": "Zhuyin / Taiwan readings", "t.r5v": "✅ default on",
+    "t.r6": "Simp ↔ Trad conversion", "t.r7": "Best for",
+    "t.r7a": "annotation only", "t.r7b": "daily family use", "t.r7c": "teachers / advanced", "t.r7d": "TW/HK/MO · Zhuyin",
+    "faq.1": "<b>Does it need internet?</b><br>No. All four versions are single-file HTML with the engine, dictionaries, Taiwan readings and OpenCC data embedded — they work offline; internet is only used for the optional LXGW font and update checks.",
+    "faq.2": "<b>Is my text uploaded?</b><br>Never. It is a pure front-end tool; everything runs in your browser with no requests to any server.",
+    "faq.3": "<b>Where do Taiwan readings come from?</b><br>The MOE《重編國語辭典修訂本》(g0v Moedict open data), covering ~15k words and ~200 characters that differ across the strait (垃圾 ㄌㄜˋㄙㄜˋ, 星期 ㄑ丨ˊ); works in both Pinyin and Zhuyin modes, switch back to mainland readings anytime.",
+    "faq.4": "<b>Picked the wrong version?</b><br>Just come back to this page (remove the file name from the address bar). All four versions work the same way; text and style settings are independent.",
+    "faq.5": "<b>Are polyphonic readings always correct?</b><br>No edition can guarantee 100%. Dictionaries differ across editions, so accuracy differs too (highest in the full-dictionary edition). For teaching, tick \"Highlight tricky spots\" and check character by character; click a wrong character in the preview to fix it — every edition shows the same reminder under its preview area.",
+    "ft.1": "Free & open source (MIT)", "ft.2": "GitHub source", "ft.3": "Any single file can be shared directly — just double-click to use",
+    "prog.prep": "Preparing Full Dictionary version… (~7 MB)", "prog.dl": "Downloading Full Dictionary: <b>{p}%</b> ({a} / {t} MB), entering automatically when done…",
+    "prog.recv": "Downloading Full Dictionary: <b>{a}</b> / ~7 MB received…", "prog.stall": "Downloading Full Dictionary… <b>{a}</b> / ~7 MB received"
+  }
+};
+function i18nT(key, def) {
+  var L = window.__LANG || "cn";
+  if (L === "cn") return def;
+  var pack = I18N[L];
+  return (pack && pack[key] != null) ? pack[key] : def;
+}
+function applyI18n() {
+  var L = window.__LANG || "cn";
+  document.title = i18nT("doc.title", document.title);
+  document.documentElement.lang = L === "cn" ? "zh-CN" : (L === "tw" ? "zh-TW" : "en");
+  var lists = [
+    ["[data-i18n]", "data-i18n", function (el) { return el.innerHTML; }, function (el, v) { el.innerHTML = v; }]
+  ];
+  for (var g = 0; g < lists.length; g++) {
+    var sel = lists[g][0], attr = lists[g][1], getV = lists[g][2], setV = lists[g][3];
+    var nodes = document.querySelectorAll(sel);
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i], k = el.getAttribute(attr);
+      if (el.__i18nOrig === undefined) el.__i18nOrig = getV(el);
+      if (L === "cn" && el.__i18nOrig != null) setV(el, el.__i18nOrig);
+      else if (I18N[L] && I18N[L][k] != null) setV(el, I18N[L][k]);
+    }
+  }
+}
+(function () {
+  var saved = null;
+  try { saved = localStorage.getItem("py-lang"); } catch (e) { saved = null; }
+  if (saved !== "cn" && saved !== "tw" && saved !== "en") {
+    var nl = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+    saved = /zh-(tw|hk|mo)|hant/i.test(nl) ? "tw" : (/^en/i.test(nl) ? "en" : "cn");
+  }
+  window.__LANG = saved;
+  applyI18n();
+  var sw = document.getElementById("lang-sw");
+  if (sw) {
+    var btns = sw.querySelectorAll("button");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].className = btns[i].getAttribute("data-lang") === saved ? "on" : "";
+      (function (btn) {
+        btn.addEventListener("click", function () {
+          var L = btn.getAttribute("data-lang");
+          if (L === window.__LANG) return;
+          window.__LANG = L;
+          try { localStorage.setItem("py-lang", L); } catch (e2) {}
+          applyI18n();
+          for (var j = 0; j < btns.length; j++) btns[j].className = btns[j].getAttribute("data-lang") === L ? "on" : "";
+        });
+      })(btns[i]);
+    }
+  }
+})();
+</script>
+
+<script>
+(function () {
+  var KEY = "py-ver-choice";
+  // main 为旧名：老书签 / ?v=main 直链自动映射到 pinyin
+  var V = {
+    mini: { file: "mini.html" },
+    pinyin: { file: "pinyin.html" },
+    plus: { file: "plus.html" },
+    zhuyin: { file: "zhuyin.html" },
+    main: { file: "pinyin.html" }   // 兼容旧链接
+  };
+  var timer = null;
+
+  function vName(v) {
+    return i18nT("v." + v + ".name", { mini: "轻量版", pinyin: "主线版", plus: "完整词典版", zhuyin: "注音版" }[v] || v);
+  }
+  function getChoice() {
+    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+  }
+  function setChoice(v) {
+    try { localStorage.setItem(KEY, v === "main" ? "pinyin" : v); } catch (e) {}
+  }
+
+  // Plus 预取：显示真实下载进度，取完再跳（文件已进 HTTP 缓存，跳转秒开）
+  // 进度可能拿不到（file:// 下被禁、服务器不分块等），此时保持流动动画并在就绪后直接跳转
+  var plusFetch = { started: false, done: false, visible: false, gotProgress: false, lastTick: 0, lastLoaded: 0 };
+  var progBox = document.getElementById("progress");
+  var progTxt = document.getElementById("prog-txt");
+  var progBarwrap = document.getElementById("prog-barwrap");
+  var progBar = document.getElementById("prog-bar");
+
+  function progShow() { plusFetch.visible = true; progBox.hidden = false; }
+  function progIndet(msg) {
+    progTxt.innerHTML = msg;
+    progBarwrap.classList.add("indet");
+    progBar.style.width = "0";
+  }
+  function progDeterminate(msg) {
+    progTxt.innerHTML = msg;
+    progBarwrap.classList.remove("indet");
+  }
+
+  function beginPlusFetch() {
+    if (plusFetch.started) return;
+    plusFetch.started = true;
+    // fetch + ReadableStream 读进度：XHR 的 progress 事件在部分环境下不持续触发（e.total 恒为 0）
+    var finish = function () { plusFetch.done = true; };
+    try {
+      fetch("plus.html").then(function (res) {
+        var total = parseInt(res.headers.get("Content-Length") || "0", 10);
+        if (!res.body || !res.body.getReader) { finish(); return; }
+        var reader = res.body.getReader();
+        var loaded = 0;
+        var pump = function () {
+          return reader.read().then(function (r) {
+            if (r.done) { finish(); return; }
+            loaded += r.value.length;
+            plusFetch.gotProgress = true;
+            plusFetch.lastTick = Date.now();
+            plusFetch.lastLoaded = loaded;
+            if (plusFetch.visible) {
+              if (total > 0) {
+                progDeterminate(i18nT("prog.dl", "正在下载完整词典版：<b>{p}%</b>（{a} / {t} MB），下载完成后自动进入…")
+                  .replace("{p}", Math.round(loaded / total * 100))
+                  .replace("{a}", (loaded / 1048576).toFixed(1))
+                  .replace("{t}", (total / 1048576).toFixed(1)));
+                progBar.style.width = (loaded / total * 100).toFixed(1) + "%";
+              } else {
+                progDeterminate(i18nT("prog.recv", "正在下载完整词典版：已接收 <b>{a}</b> / 约 7 MB…").replace("{a}", (loaded / 1048576).toFixed(1)));
+                progBar.style.width = Math.min(loaded / 7340032 * 100, 96).toFixed(1) + "%";
+              }
+            }
+            return pump();
+          });
+        };
+        return pump();
+      }).catch(finish);
+    } catch (e) { finish(); }
+  }
+
+  function goPlus(file) {
+    progShow();
+    if (plusFetch.done) { location.href = file; return; }
+    if (!plusFetch.gotProgress) progIndet(i18nT("prog.prep", "正在准备完整词典版…（约 7 MB）"));
+    beginPlusFetch();
+    var watch = setInterval(function () {
+      if (plusFetch.done) { clearInterval(watch); location.href = file; return; }
+      // 进度数据超过 800ms 没更新（网络抖动/缓冲），切回流动动画避免显得卡死
+      if (plusFetch.visible && plusFetch.gotProgress && Date.now() - plusFetch.lastTick > 800) {
+        progIndet(i18nT("prog.stall", "正在下载完整词典版…已接收 <b>{a}</b> / 约 7 MB").replace("{a}", (plusFetch.lastLoaded / 1048576).toFixed(1)));
+      }
+    }, 300);
+  }
+
+  function go(v) {
+    var info = V[v];
+    if (!info) return;
+    setChoice(v);
+    if (v === "plus") goPlus(info.file);
+    else location.href = info.file;
+  }
+
+  // 链接参数直链：?v=pinyin / ?v=plus / ?v=zhuyin / ?v=mini（?v=main 兼容旧分享链接）
+  var qs = new URLSearchParams(location.search).get("v");
+  if (qs && V[qs]) { go(qs); return; }
+
+  // 老用户：倒计时自动进入，可取消（旧记忆 main → pinyin）
+  var saved = getChoice();
+  if (saved === "main") saved = "pinyin";
+  if (saved && V[saved]) {
+    if (saved === "plus") beginPlusFetch();
+    var box = document.getElementById("resume");
+    var nameEl = document.getElementById("resume-name");
+    var secEl = document.getElementById("resume-sec");
+    nameEl.textContent = vName(saved);
+    box.hidden = false;
+    var left = 3;
+    timer = setInterval(function () {
+      left--;
+      secEl.textContent = left;
+      if (left <= 0) { clearInterval(timer); go(saved); }
+    }, 1000);
+    document.getElementById("resume-go").addEventListener("click", function () {
+      clearInterval(timer); go(saved);
+    });
+    document.getElementById("resume-cancel").addEventListener("click", function () {
+      clearInterval(timer); box.hidden = true;
+    });
+  }
+
+  // 版本卡片点击
+  var btns = document.querySelectorAll(".card .go");
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener("click", function () { go(this.getAttribute("data-ver")); });
+  }
+})();
+</script>
+</body>
+</html>

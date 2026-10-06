@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拼音注音小助手 · 入口已迁移</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+         background: #f6f1e7; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; color: #4a4438; }
+  .box { max-width: 520px; margin: 24px; padding: 28px 32px; background: #fffdf8; border: 1px solid #e2d9c6;
+         border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.06); line-height: 1.8; font-size: 15px; }
+  h1 { font-size: 19px; margin: 0 0 12px; color: #b4552d; }
+  b { color: #b4552d; }
+  .go { display: inline-block; margin-top: 14px; padding: 8px 22px; background: #b4552d; color: #fff;
+        border-radius: 8px; text-decoration: none; font-size: 15px; }
+  .cnt { color: #a89f8d; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>「main.html」已更名为「pinyin.html」</h1>
+  <div id="msg">正在为你跳转到主线版（pinyin.html）…</div>
+  <a class="go" id="go" href="pinyin.html" style="display:none">立即进入主线版 pinyin.html</a>
+  <p class="cnt" id="tip"></p>
+</div>
+<script>
+/* 旧入口跳转页（与 index.html 一样为手工维护文件，不参与 build.js 构建）：
+   在线运行 → 提示并自动跳转 pinyin.html；
+   本地运行 → 用户更新后很可能只下载了这个旧入口文件，提示改为下载 / 打开 pinyin.html */
+(function () {
+  var isLocal = location.protocol === "file:";
+  var msg = document.getElementById("msg");
+  var go = document.getElementById("go");
+  var tip = document.getElementById("tip");
+  if (isLocal) {
+    msg.innerHTML = "你是<b>本地打开</b>的这个文件。工具更新后，主线版已从 main.html 更名为 <b>pinyin.html</b>——" +
+      "如果你本次更新只下载了 main.html，请到下载页重新获取 <b>pinyin.html</b>（其余文件无需重复下载）。";
+    go.style.display = "inline-block";
+    go.textContent = "尝试打开同目录下的 pinyin.html";
+    tip.textContent = "若提示找不到文件，说明同目录下还没有 pinyin.html，请先从发布页下载。";
+  } else {
+    var n = 3;
+    tip.textContent = n + " 秒后自动跳转…";
+    go.style.display = "inline-block";
+    var t = setInterval(function () {
+      n--;
+      if (n <= 0) { clearInterval(t); location.replace("pinyin.html"); return; }
+      tip.textContent = n + " 秒后自动跳转…";
+    }, 1000);
+  }
+})();
+</script>
+</body>
+</html>
