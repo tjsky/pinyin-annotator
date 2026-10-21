@@ -1,0 +1,67 @@
+/* ============================================================
+   拼音注音小助手 · 注音网页标注样式（zhuyin.css）
+   配合「复制内容及音标 → HTML+CSS 注音（网页）」格式使用：
+   复制出的源码自带 <link> 引用本文件与 <div class="pazy"> 结构，
+   粘贴进任意网页即可得到与 A4 预览一致的注音排版。
+
+   用法
+   - 横排（默认）：div 的 class 为 "pazy"——注音符号标在汉字上方，
+     调号标在末符号上方，轻声点标在字音最前方；
+   - 直排（台湾直式教科书风格）：div 的 class 改为 "pazy pazy-v"——
+     注音符号自上而下竖排、标注在汉字右侧，调号标在末符号右方，轻声点在最上。
+
+   结构说明（由复制功能自动生成，此处供手工调整参考）
+   <div class="pazy">
+     <p>…<span class="pazy-i"><span class="pazy-h">小</span><span class="pazy-z"><i>ㄒ</i><i>ㄧ</i><i>ㄠ</i><i class="pazy-t">ˇ</i></span></span>…</p>
+   </div>
+   - .pazy-i  单个「字 + 注音」标注单元（inline-flex）
+   - .pazy-h  汉字本体
+   - .pazy-z  注音符号栈（每个符号一个 <i>）
+   - .pazy-t  调号（ˊˇˋ）；所在单元会附加 .pazy-ti（直排时预留调号位）
+   - .pazy-t5 轻声点（˙），位于符号栈最前
+   - .pazy-x  IVS 模式回退包裹层：读音表未收的字切回常规字形、由结构标注
+   ============================================================ */
+
+.pazy {
+  font-family: "Kaiti", "STKaiti", "DFKai-SB", "BiauKai", "楷体", "Kaiti SC", serif;
+  font-size: 1em;
+  line-height: 2.3;
+}
+.pazy p { margin: 0 0 1em; }
+/* IVS 模式专用：读音表未收该读音的字切回常规字形（字型自带注音会被禁用，
+   改由内部 .pazy-i 结构标注正确读音） */
+.pazy .pazy-x {
+  font-family: "Kaiti", "STKaiti", "DFKai-SB", "BiauKai", "楷体", "Kaiti SC", serif;
+}
+
+/* 单元：汉字在下列、注音栈在上列（column-reverse：第一个子元素 .pazy-h 落在底部，
+   其基线参与行内对齐，与周围文字天然对齐——效果等同 <ruby> 的字上方注音） */
+.pazy .pazy-i {
+  display: inline-flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  margin: 0 2px;
+}
+.pazy .pazy-h { line-height: 1.2; }
+.pazy .pazy-z {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.42em;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  color: #6b6558;
+  user-select: none;
+}
+.pazy .pazy-z i { font-style: normal; }
+/* 横排调号：transform 拉高左移到末符号上方，负 margin 抵消自身占位宽度 */
+.pazy .pazy-t {
+  display: inline-block;
+  transform: translate(-0.5em, -0.7em);
+  margin-right: -0.5em;
+}
+
+/* 直排（台湾直式）：注音符号栈竖排、标注在汉字右侧 */
+.pazy.pazy-v .pazy-i { flex-direction: row; }
+.pazy.pazy-v .pazy-z { flex-direction: column; align-items: center; line-height: 1.15; }
+.pazy.pazy-v .pazy-i.pazy-ti { position: relative; padding-right: 0.62em; }
+.pazy.pazy-v .pazy-t { position: absolute; right: 0.02em; bottom: 0.12em; transform: none; margin: 0; }
