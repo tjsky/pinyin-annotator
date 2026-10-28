@@ -45,8 +45,7 @@ jobs:
       - name: Inject analytics (dist only)
         env:
           UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
-          UMAMI_HOST: ${{ vars.UMAMI_HOST }}
-          UMAMI_SCRIPT_NAME: ${{ vars.UMAMI_SCRIPT_NAME }}
+          UMAMI_SCRIPT_URL: ${{ vars.UMAMI_SCRIPT_URL }}
         run: node inject-analytics.js dist
 
       - name: Push dist branch (force, machine-managed)

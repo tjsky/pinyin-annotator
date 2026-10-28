@@ -10,46 +10,52 @@
 // 因此 build.js 的字节可复现性原样保留。
 //
 // 用法：
-//   node inject-analytics.js dist                                   # 未设 ID，直接跳过
-//   UMAMI_WEBSITE_ID=<uuid> UMAMI_HOST=https://a.example.net \
-//     node inject-analytics.js dist                                 # 注入
+//   node inject-analytics.js dist
+//   UMAMI_WEBSITE_ID=<uuid> UMAMI_SCRIPT_URL=https://ana.example.net/main.js \
+//     node inject-analytics.js dist
 //
-// 环境变量：
-//   UMAMI_WEBSITE_ID    Umami 里网站的 UUID，未设置则整体跳过（fork 后默认就是未设置）
-//   UMAMI_HOST          Umami 站点根地址，如 https://analytics.example.net
-//   UMAMI_SCRIPT_NAME   tracker 文件名，需与实例的 TRACKER_SCRIPT_NAME 一致，默认 script.js
+// 环境变量（两个都必填，缺一个就整体跳过）：
+//   UMAMI_WEBSITE_ID     Umami 里网站的 UUID
+//   UMAMI_SCRIPT_URL     tracker 的完整地址，如 https://ana.tjsky.net/main.js
+//
+// 均不给默认值：给默认 URL 会让「配了自己的 ID 却忘了改 URL」的人把数据发到别人的实例上。
 
 const fs = require("fs");
 const path = require("path");
 
 const dir = process.argv[2] || "dist";
 const id = (process.env.UMAMI_WEBSITE_ID || "").trim();
-const host = (process.env.UMAMI_HOST || "").trim().replace(/\/+$/, "");
-const scriptName = (process.env.UMAMI_SCRIPT_NAME || "script.js").trim().replace(/^\/+/, "");
+const scriptUrl = (process.env.UMAMI_SCRIPT_URL || "").trim();
 
-if (!id) {
-  console.log("[analytics] UMAMI_WEBSITE_ID 未设置，跳过注入（dist 与源码产物完全一致）");
+if (!id && !scriptUrl) {
+  console.log("[analytics] 未配置 UMAMI_WEBSITE_ID / UMAMI_SCRIPT_URL，跳过注入（dist 与源码产物完全一致）");
   process.exit(0);
+}
+if (!id || !scriptUrl) {
+  console.error("[analytics] 两个变量必须同时设置：UMAMI_WEBSITE_ID=" + (id || "(空)") +
+    "，UMAMI_SCRIPT_URL=" + (scriptUrl || "(空)"));
+  process.exit(1);
 }
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
   console.error("[analytics] UMAMI_WEBSITE_ID 不是合法 UUID：" + id);
   process.exit(1);
 }
-if (!/^https?:\/\/[^/]+$/.test(host)) {
-  console.error("[analytics] UMAMI_HOST 需要是站点根地址（不带路径与结尾斜杠），如 https://analytics.example.net");
+if (!/^https:\/\/[^/]+\/.+\.js$/.test(scriptUrl)) {
+  console.error("[analytics] UMAMI_SCRIPT_URL 需要是完整的 https 地址并以 .js 结尾，如 https://ana.example.net/main.js");
   process.exit(1);
 }
 
 // 标记用于幂等：重复执行不会叠第二次
 const MARK = "<!--analytics-->";
-// 用 file: 协议打开时（有人把网页另存为本地文件）不加载，避免上报出 hostname 为空的数据
+// 用 file: 协议打开时（有人把网页另存为本地文件）不加载，避免上报出 hostname 为空的数据。
+// 属性与 umami 官方标签一致——不给 data-host-url，tracker 会从自己的 src 推断上报地址
+// （已核 main.js：host = currentScript.src.split("/").slice(0,-1).join("/")）。
 const snippet =
   MARK +
   "<script>(function(){if(location.protocol===\"file:\")return;" +
   "var s=document.createElement(\"script\");s.defer=1;" +
-  "s.src=" + JSON.stringify(host + "/" + scriptName) + ";" +
+  "s.src=" + JSON.stringify(scriptUrl) + ";" +
   "s.setAttribute(\"data-website-id\"," + JSON.stringify(id) + ");" +
-  "s.setAttribute(\"data-host-url\"," + JSON.stringify(host) + ");" +
   "document.head.appendChild(s)})()</script>";
 
 if (!fs.existsSync(dir)) {
