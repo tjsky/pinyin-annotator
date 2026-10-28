@@ -38,6 +38,17 @@ jobs:
           cp .github/dist-readme.md dist/README.md
           touch dist/.nojekyll
 
+      # 访问统计只注入 dist 分支（三个平台在线部署的地方）。
+      # Release zip 由下面的 release job 从仓库根目录的文件打包，天然不含统计代码。
+      # 未配置 vars.UMAMI_WEBSITE_ID 时脚本直接跳过——fork 后 Variables 不会跟过去，
+      # 所以别人自部署不会把数据打到本仓库的 Umami 上。
+      - name: Inject analytics (dist only)
+        env:
+          UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
+          UMAMI_HOST: ${{ vars.UMAMI_HOST }}
+          UMAMI_SCRIPT_NAME: ${{ vars.UMAMI_SCRIPT_NAME }}
+        run: node inject-analytics.js dist
+
       - name: Push dist branch (force, machine-managed)
         if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/')
         run: |

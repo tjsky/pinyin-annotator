@@ -162,6 +162,7 @@ node build.js
 - **音标转写对照**：`node check-translit.js` 用 kfcd/pinyin 的 2095 条音节逐条核对通用拼音、耶鲁拼音、威妥玛（严式 / 简式）、注音二式、国语罗马字、西里尔转写的拼写与调值（国语罗马字拼写即承载声调；国语罗马字与西里尔都直接逐字符比对）；简式的两个开关也会自检。汉语拼音与注音符号是基准写法，不参与比对。先在仓库根目录放一份对照表：`gh api repos/kfcd/pinyin/contents/pinyinbiao -H "Accept: application/vnd.github.raw" > .ty-biao.tsv`（该文件不入库）。
 - **候选读音自检**：`node check-alts.js` 扫描全部多音字，检查九种方案下的候选是否混入方案外的字符（如注音模式里出现拉丁字母）或显示重复的选项。
 - **内嵌字体**：`fonts/build-andika.py <Andika-Regular.ttf>` 重建 Andika 子集，`fonts/check-coverage.py` 检查两个内嵌字体是否覆盖所有音标方案用到的字符（含组合调号与 unicode-range）。两者需要 `pip install fonttools brotli`，仅改字体时使用。
+- **访问统计（可选，仅官方部署）**：统计代码不写在源码里，由 `inject-analytics.js` 在 CI 推送 `dist` 前注入，因此**本地构建的成品与 Release 包都是干净的**。想给自己的部署接统计，设好 `UMAMI_WEBSITE_ID`、`UMAMI_HOST`（`UMAMI_SCRIPT_NAME` 视实例配置可选）再运行 `node inject-analytics.js dist`；未设 ID 时脚本直接跳过，不会失败。
 
 ## 参与贡献
 
@@ -208,7 +209,7 @@ node build.js
 - 在线字体（霞鹜文楷 GB / TC、芫荽等）仅在主动选择时从 CDN 加载字体文件，不涉及文章内容；
 - 长文模式「合并 PDF」所用的合并组件（pdf-lib）首次使用时从 CDN 加载，之后走浏览器缓存，合并过程完全在本机完成；
 - 阅读模式的「朗读」用浏览器内置语音，念的就是页面上这篇文章，不经过任何服务器；「麦克风跟读」走浏览器的语音识别，浏览器厂商可能会处理音频（首次开启前会先询问一次），介意的话不开就行；
-- 工具默认不收集任何个人信息，无统计、无广告。
+- 工具不收集任何个人信息，无广告。**官方在线版**用自托管的 Umami 做匿名访问统计（无 Cookie、不收集文章内容、不记录可识别个人的信息），只为知道有多少人在用；**从 Release 下载的离线文件、以及 fork 后自建部署的版本都不含统计代码**。
 
 ## 准确性说明
 

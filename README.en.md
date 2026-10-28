@@ -162,6 +162,7 @@ This produces the four single-file builds — `mini.html`, `pinyin.html`, `plus.
 - **Transliteration check**: `node check-translit.js` compares all 2,095 syllables from kfcd/pinyin against the Tongyong, Yale, Wade-Giles (full and plain), MPS2, Gwoyeu Romatzyh and Cyrillic rules, checking both spelling and tone (GR encodes the tone in the spelling; GR and Cyrillic are compared character by character). The two Wade-Giles plain switches are self-tested as well. Hanyu Pinyin and zhuyin are the reference forms and are not compared. Put the reference table in the repository root first: `gh api repos/kfcd/pinyin/contents/pinyinbiao -H "Accept: application/vnd.github.raw" > .ty-biao.tsv` (it is not committed).
 - **Candidate check**: `node check-alts.js` walks every polyphonic character and verifies that candidates under all nine systems contain no foreign characters (e.g. Latin letters in zhuyin mode) and no duplicates.
 - **Embedded fonts**: `fonts/build-andika.py <Andika-Regular.ttf>` rebuilds the Andika subset, and `fonts/check-coverage.py` verifies that both embedded fonts cover every character the notations use (combining tone marks and unicode-range included). Both need `pip install fonttools brotli` and are only used when changing fonts.
+- **Analytics (optional, official deployment only)**: the tracking snippet is not part of the source. `inject-analytics.js` adds it right before CI pushes the `dist` branch, so **locally built files and the Release zip stay clean**. To collect stats on your own deployment, set `UMAMI_WEBSITE_ID` and `UMAMI_HOST` (`UMAMI_SCRIPT_NAME` if your instance renames the tracker) and run `node inject-analytics.js dist`. With no ID set the script simply skips — it never fails the build.
 
 ## Contributing
 
@@ -186,7 +187,7 @@ The contributor list is maintained by a GitHub Action; see the [Simplified Chine
 - Online fonts (LXGW WenKai GB / TC, Iansui, etc.) are fetched from a CDN only when you select them, and never involve your text.
 - The PDF merger used by long-text mode (pdf-lib) is fetched from a CDN on first use and cached by the browser afterwards; the merging itself happens locally.
 - Read-aloud uses the browser's built-in speech engine on the text already on the page, with no server involved. Microphone follow-along uses the browser's speech recognition, and the browser vendor may process the audio (you are asked once before it starts) — skip it if that bothers you.
-- No personal data is collected. No analytics, no ads.
+- No personal data is collected, and there are no ads. The **official online version** uses a self-hosted Umami instance for anonymous traffic counts (no cookies, no article content, nothing that identifies a person) — simply to know how many people use it. The **offline files downloaded from Releases, and any self-hosted copy after forking, contain no analytics code at all**.
 
 ## Accuracy
 
