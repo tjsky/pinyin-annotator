@@ -7,7 +7,7 @@
   <a href="README.en.md"><img alt="English" src="https://img.shields.io/badge/English-Current-brightgreen?style=flat-square"></a>
 </p>
 
-> Add pinyin or zhuyin to any Chinese text in one click — nine notation systems to choose from — and produce annotated reading material for **kindergarten and lower-primary children** and for **learners of Chinese as a foreign language**.
+> Add pinyin or zhuyin to any Chinese text in one click — nine notation systems for Mandarin, plus a separate Cantonese build — and produce annotated reading material for **kindergarten and lower-primary children** and for **learners of Chinese as a foreign language**.
 >
 > Pure front end · single file · works offline · your text is never uploaded
 >
@@ -29,9 +29,9 @@ Tools that add pinyin to a text for young children usually show ads, upload your
 
 ## Screenshots
 
-- Version chooser
+- Version chooser (five builds)
 
-![Version chooser](https://img.tjsky.net/2026/09/5bbf3c657c59e7ff99e46278390c3002.webp)
+![Version chooser](https://img.tjsky.net/2026/11/_20261105210039-bac2c821.webp)
 
 - Pinyin output
 
@@ -39,12 +39,17 @@ Tools that add pinyin to a text for young children usually show ads, upload your
 - Zhuyin output
 
   ![](https://img.tjsky.net/2026/09/67a338385a65ab3b3e32f62f78ff993f.webp)
+- Jyutping output (Hong Kong Traditional UI)
+
+  ![](https://img.tjsky.net/2026/11/_20261105205857-22a18664.webp)
 
 ## Features
 
 ### Notations and readings
 
-**Nine notation systems**, switched from the "Notation" dropdown in the sidebar. Readings are always stored as pinyin, so switching only changes the spelling — manual overrides and Taiwan readings still apply, and the preview, the printout and all five copy formats follow along.
+**Nine Mandarin notation systems**, switched from the "Notation" dropdown in the sidebar. Readings are always stored as pinyin, so switching only changes the spelling — manual overrides and Taiwan readings still apply, and the preview, the printout and all five copy formats follow along.
+
+> Jyutping is not one of the nine. Those nine are different spellings of **the same Mandarin readings**, while Jyutping is **a different set of readings** altogether, so it lives in its own Cantonese build (`jyutping.html`, picked from the version chooser).
 
 | System | What it looks like | Example: 春天来了 |
 | --- | --- | --- |
@@ -113,7 +118,7 @@ Tone numbers can be switched off for Wade-Giles plain and Cyrillic. Latin-script
 
 All five builds share the same controls, layout, printing and read mode — only the reading system and dictionary size differ.
 
-Every build supports **Simplified / Traditional / English**, all **nine notation systems** (Hanyu Pinyin / Zhuyin / Tongyong / Yale / Wade-Giles full and plain / MPS2 / Gwoyeu Romatzyh / Cyrillic), and **一/不 sandhi** (sandhi form or citation tone). Latin-script systems can put the annotation **above** (default) or to the **right**; zhuyin can be set **horizontally** (symbols written horizontally above the character, tone mark above the last symbol) or **vertically** (Taiwan's upright textbook style, symbols stacked top to bottom to the right of the character, tone mark to the right of the last symbol). The A4 preview re-paginates after a switch, and print / PDF matches it exactly.
+Every build except the Cantonese one supports **Simplified / Traditional / English**, all **nine notation systems** (Hanyu Pinyin / Zhuyin / Tongyong / Yale / Wade-Giles full and plain / MPS2 / Gwoyeu Romatzyh / Cyrillic), and **一/不 sandhi** (sandhi form or citation tone). Latin-script systems can put the annotation **above** (default) or to the **right**; zhuyin can be set **horizontally** (symbols written horizontally above the character, tone mark above the last symbol) or **vertically** (Taiwan's upright textbook style, symbols stacked top to bottom to the right of the character, tone mark to the right of the last symbol). The A4 preview re-paginates after a switch, and print / PDF matches it exactly. The Cantonese build has Jyutping only; the options that make no sense there are hidden.
 
 "More settings → Reading standard" switches between **Mainland (Putonghua) readings**, following *现代汉语词典* (data from [zh-lx/pinyin-pro](https://github.com/zh-lx/pinyin-pro)), and **Taiwan readings**, following the *重編國語辭典修訂本* (data from [g0v Moedict](https://github.com/g0v/moedict-data)) — about 15,000 words and 200 characters, matched in either script (垃圾 ㄌㄜˋㄙㄜˋ, 期待 ㄑ丨ˊ, 攜帶 ㄒ丨, 血液 ㄒ丨ㄝˇ, 混淆 ㄏㄨㄣˋ丨ㄠˊ). The dictionary text is licensed CC BY-ND 3.0 Taiwan, and the attribution it requires is: 教育部 (Ministry of Education, R.O.C.).
 
@@ -125,7 +130,7 @@ The interface comes in **Simplified / Hong Kong Traditional / English**: the Sim
 
 It is not a translator: it only shows how each character is read, without changing the wording of the sentence and without promising that a Cantonese speaker would say it that way. Simplified input is converted to Traditional with OpenCC for lookup (the Cantonese lexicon is Traditional), but **the text you see stays as you typed it**.
 
-"More settings → Conversion" offers **Simplified / Taiwan Traditional / Hong Kong Traditional**. Hong Kong *wording* conversion currently covers only a few dozen entries (mostly names of people and places), so mainland terms such as 出租車 or 土豆 are converted character by character rather than into 的士 or 薯仔 — that is the state of OpenCC's upstream data. Both Hong Kong forms (裏 / 衞 / 峯 / 着) and Taiwan forms (裡 / 衛 / 峰 / 著) come out correctly.
+"More settings → Conversion" offers **Simplified / Taiwan Traditional / Hong Kong Traditional**. Hong Kong *wording* conversion currently covers only a few dozen entries (mostly names of people and places), so mainland terms such as 出租車 or 土豆 are converted character by character rather than into 的士 or 薯仔 — that is the state of OpenCC's upstream data; do report missing words to that project. Character forms follow each region (Hong Kong 裏 / 衞, Taiwan 裡 / 衛).
 
 > Chrome or Edge is recommended. Phones and tablets work too: the layout stacks vertically and paging becomes continuous scrolling. Fonts can't be installed on a phone, so just use the embedded Andika; read-aloud and follow-along work as usual. Everything runs locally and your text is never uploaded; the network is used only for the optional engine update check and for online fonts (choose none and it is fully offline).
 >
@@ -251,12 +256,16 @@ The pinyin engine is about 99.8% accurate, but **100% is not promised**: polypho
 
 ### Planned
 
-- The notation systems now cover the main traditions (nine); no more will be added. *華語羅馬拼音 (THL)* was evaluated and dropped.
-- Cantonese (Jyutping) support: romanisation standards for Cantonese are inconsistent, the results cannot be guaranteed, and no authoritative reference (government standard, school textbook) or usable open-source library has been found yet. References welcome.
+- The notation systems now cover the main Mandarin traditions (nine); no more will be added. *華語羅馬拼音 (THL)* was evaluated and dropped.
+- The Cantonese build will keep growing its word list from feedback (both lexicon coverage and Hong Kong wording conversion are still being built up).
 
 ## Known issues
 
 - **Wrong or missing readings**: readings come from the embedded engine, so individual characters can be misread or incomplete. Common cases have been patched, but not all of them. Click a character to fix it; if the correct reading isn't among the candidates, please report it and it will be added.
+- **Cantonese build (Jyutping)**:
+  - Jyutping is **not interchangeable** with the other eight systems. Those eight are spellings of Mandarin readings; Jyutping is **an entirely different reading system**, reached through a different data path in the engine. That is why it has a page of its own, and why options that only make sense for Mandarin notation (notation system, erhua, annotation position) are hidden there.
+  - **Readings currently follow Hong Kong usage**: no usable Guangdong standard (government spec or textbook-level reading list) has been found, and Guangzhou and Hong Kong genuinely differ on some characters and words. Where they disagree, the Hong Kong reading is shown.
+  - **The author is not from the Greater Bay Area.** The Cantonese data was checked against references and native-speaker intuition, so wording, readings and word segmentation can all be wrong. Teachers and parents in Cantonese-speaking regions: please open an issue or PR if something looks off — that feedback is worth more than anything else here.
 - **Read mode**:
   - Spoken readings come from the device's or browser's speech engine, so polyphonic characters may be pronounced differently from the annotation. No low-cost solution with good quality has been found.
   - When a sentence straddles a page break, the reading pauses briefly at the turn — a trade-off between performance and behaviour that is not planned to be fixed soon.
