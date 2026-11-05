@@ -15,7 +15,7 @@
 //  - /*__VARIANT__*/null  构建变体默认值 JSON（zhuyin: 繁体界面/注音/台湾读音/opencc）
 // 构建版本号：手工维护，发版时随 tag 递增；注入为每个产物 head 内的隐藏注释 <!--build:x.y.z>，
 // 用于部署验证——curl 任一线上页面 grep 该串即可确认平台是否在服务最新 dist（固定常量保证产物逐字节可复现）。
-const BUILD_VERSION = "v1.7.2";
+const BUILD_VERSION = "v1.8.0";
 //  - <!--__SEO_META__-->  各版本 SEO meta（canonical / og 标签，按版本注入）
 const fs = require("fs");
 const path = require("path");
@@ -110,6 +110,7 @@ const py2zyCode = fs.readFileSync(path.join(root, "vendor", "py2zy.snippet.js"),
 
 // 3.7) OpenCC full.js UMD（gzip+base64，简↔繁转换；nk2028/opencc-js，Apache-2.0）
 const openccB64 = fs.readFileSync(path.join(root, "seg-dict", "opencc.b64.txt"), "utf8").trim();
+const jyutDictB64 = fs.readFileSync(path.join(root, "seg-dict", "jyutdict.b64.txt"), "utf8").trim();
 
 // 3.8) 注音芫荽 IVS 读音表（bpmfvs 规格phonic_table_Z 产物，构建期由 seg-dict/gen-bpmf-ivs.py 生成；
 //      仅注音版注入——「HTML+CSS 注音」格式直排 + BpmfIansui 字体时按 IVS 写入正确读音）
@@ -133,7 +134,8 @@ const SEO = {
   "mini.html": seoMeta("mini.html", "轻量版", "拼音注音小助手轻量版（约 0.9 MB）：固定逐字注音，不内置分词词典，" + COMMON_DESC),
   "pinyin.html": seoMeta("pinyin.html", "主线版", "拼音注音小助手主线版：内置约 3 万常用词词典，支持智能分词（词组连排注音、手动断词合词）。" + COMMON_DESC),
   "plus.html": seoMeta("plus.html", "完整词典版", "拼音注音小助手完整词典版：内嵌 33.7 万词全量词典与 OpenCC 简↔繁转换，成语、专有名词等长尾词也能整体成词，分词更准。" + COMMON_DESC),
-  "zhuyin.html": seoMeta("zhuyin.html", "注音版", "拼音注音小助手注音版：預設繁體介面、注音符號（ㄅㄆㄇ，橫排 / 直排）與臺灣讀音（教育部《重編國語辭典修訂本》），內建 OpenCC 簡↔繁轉換與智慧分詞。" + COMMON_DESC)
+  "zhuyin.html": seoMeta("zhuyin.html", "注音版", "拼音注音小助手注音版：預設繁體介面、注音符號（ㄅㄆㄇ，橫排 / 直排）與臺灣讀音（教育部《重編國語辭典修訂本》），內建 OpenCC 簡↔繁轉換與智慧分詞。" + COMMON_DESC),
+  "jyutping.html": seoMeta("jyutping.html", "粵語版", "拼音注音小助手粵語版：給粵語母語的孩子標漢字讀音，粵拼（Jyutping）標注、9.4 萬粵語詞表定音、簡體與香港繁體介面、閱讀模式用粵語語音朗讀。這不是普通話翻粵語的翻譯工具。" + COMMON_DESC)
 };
 
 // 5) 构建变体默认值（zhuyin 版差异化：繁体界面 + 注音 + 台湾读音 + OpenCC）
@@ -141,10 +143,14 @@ const VARIANT = {
   "mini.html": null,
   "pinyin.html": null,
   "plus.html": { opencc: true },
-  "zhuyin.html": { lang: "tw", tw: true, ph: "zy", opencc: true }
+  "zhuyin.html": { lang: "tw", tw: true, ph: "zy", opencc: true },
+  /* 粤拼版：繁体界面（香港用繁体）、粤拼引擎、OpenCC 三地转换。
+     lang 暂用 tw 包 —— 香港用字（説/裏/衞）与台湾（說/裡/衛）有别，
+     界面文案待补第四套 hk 包；正文用字由 OpenCC 的 s2hk 负责，不受影响。 */
+  "jyutping.html": { lang: "tw", jyut: true, opencc: true }
 };
 
-function build(file, segDictB64, opencc) {
+function build(file, segDictB64, opencc, jyut) {
   let out = template.replace("/*__ANDIKA_FACE__*/", () => andikaBlock);
   out = out.replace("/*__BPMF_FACE__*/", () => bpmfBlock);
   out = out.replace("/*__PINYIN_PRO__*/", () => engineCode);
@@ -152,21 +158,24 @@ function build(file, segDictB64, opencc) {
   out = out.replace("/*__SEG_DICT__*/null", () => segDictB64 ? JSON.stringify(segDictB64) : "null");
   out = out.replace("/*__TW_DIFF__*/null", () => JSON.stringify(twDiffB64));
   out = out.replace("/*__OPENCC__*/null", () => opencc ? JSON.stringify(openccB64) : "null");
+  out = out.replace("/*__JYUTDICT__*/null", () => jyut ? JSON.stringify(jyutDictB64) : "null");
   out = out.replace("/*__BPMF_IVS__*/null", () => file === "zhuyin.html" ? bpmfIvsData : "null");
   out = out.replace("/*__VARIANT__*/null", () => JSON.stringify(VARIANT[file] || null));
   out = out.replace("<!--__SEO_META__-->", () => SEO[file] + "<!--build:" + BUILD_VERSION + "-->");
-  if (out.indexOf("__ANDIKA_FACE__") !== -1 || out.indexOf("__PINYIN_PRO__") !== -1 || out.indexOf("__SEG_DICT__") !== -1 || out.indexOf("__SEO_META__") !== -1 || out.indexOf("__BPMF_FACE__") !== -1 || out.indexOf("__PY2ZY__") !== -1 || out.indexOf("__TW_DIFF__") !== -1 || out.indexOf("__OPENCC__") !== -1 || out.indexOf("__VARIANT__") !== -1 || out.indexOf("__BPMF_IVS__") !== -1) {
+  if (out.indexOf("__ANDIKA_FACE__") !== -1 || out.indexOf("__PINYIN_PRO__") !== -1 || out.indexOf("__SEG_DICT__") !== -1 || out.indexOf("__SEO_META__") !== -1 || out.indexOf("__BPMF_FACE__") !== -1 || out.indexOf("__PY2ZY__") !== -1 || out.indexOf("__TW_DIFF__") !== -1 || out.indexOf("__OPENCC__") !== -1 || out.indexOf("__JYUTDICT__") !== -1 || out.indexOf("__VARIANT__") !== -1 || out.indexOf("__BPMF_IVS__") !== -1) {
     throw new Error("存在未替换的注入占位符");
   }
   return out;
 }
 
-fs.writeFileSync(path.join(root, "mini.html"), build("mini.html", null, false));
-fs.writeFileSync(path.join(root, "pinyin.html"), build("pinyin.html", segB64, false));
-fs.writeFileSync(path.join(root, "plus.html"), build("plus.html", segB64Complete, true));
-fs.writeFileSync(path.join(root, "zhuyin.html"), build("zhuyin.html", segB64, true));
+fs.writeFileSync(path.join(root, "mini.html"), build("mini.html", null, false, false));
+fs.writeFileSync(path.join(root, "pinyin.html"), build("pinyin.html", segB64, false, false));
+fs.writeFileSync(path.join(root, "plus.html"), build("plus.html", segB64Complete, true, false));
+fs.writeFileSync(path.join(root, "zhuyin.html"), build("zhuyin.html", segB64, true, false));
+fs.writeFileSync(path.join(root, "jyutping.html"), build("jyutping.html", segB64, true, true));
 console.log("build ok:",
   fs.statSync(path.join(root, "pinyin.html")).size, "bytes (pinyin 主线版),",
   fs.statSync(path.join(root, "mini.html")).size, "bytes (mini 轻量版),",
   fs.statSync(path.join(root, "plus.html")).size, "bytes (plus 完整词典版),",
-  fs.statSync(path.join(root, "zhuyin.html")).size, "bytes (zhuyin 注音版)");
+  fs.statSync(path.join(root, "zhuyin.html")).size, "bytes (zhuyin 注音版),",
+  fs.statSync(path.join(root, "jyutping.html")).size, "bytes (jyutping 粤语版)");

@@ -119,6 +119,18 @@
   .oc-row button { font-size: 12px; padding: 7px 10px; white-space: nowrap; }
   .oc-row .check { font-size: 12px; white-space: nowrap; }
   /* —— 长文模式 —— */
+  /* 粤语版说明条：用途边界与转换覆盖度，首次进入展开一次 */
+  #jyut-note {
+    margin-top: 12px; padding: 10px 12px; border-radius: 8px;
+    background: #fdf8ec; border: 1px solid #efe2c6;
+    font-size: 12px; line-height: 1.65; color: #6b6558;
+  }
+  #jyut-note p { margin: 0 0 6px; }
+  #jyut-note p:last-of-type { margin-bottom: 8px; }
+  #jyut-note b { color: #8a5a2b; }
+  #jyut-note button { font-size: 12px; padding: 3px 12px; }
+  #jyut-note[hidden] { display: none; }
+
   #lm-banner {
     display: flex; align-items: center; gap: 10px; margin-top: 10px;
     padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px;
@@ -308,7 +320,18 @@
   }
   /* ===== 注音（ㄅㄆㄇ）模式 =====
      横排：符号横写标在汉字上方（从左至右），调号标在末符号上方，轻声点标在字音前方，阴平不标调。 */
-  body.zy-on #preview rt, body.zy-on #print-area rt {
+  /* 粤拼调号：LSHK 规范要求用基线数字（ASCII），不赞成上标。
+     rt 只有 0.42em（正文 16px 时约 6.7px），上标会缩到约 4.5px，六个调很难分辨；
+     改用「加粗 + 变色」区分调号——LSHK 明确允许这种做法。
+     两者必须同时上：变色的暖橙在黑白打印时灰化成一个中间调，与字母几乎无差，
+     所以打印时退回 inherit 颜色、只留字重（学校打印机多为黑白激光）。 */
+  #preview rt b.tone, #print-area rt b.tone {
+    font-weight: 700;
+    color: #b4552d;
+  }
+  @media print {
+    #print-area rt b.tone { color: inherit; }
+  }
     font-family: var(--py-font), "BpmfSubset", "Bopomofo", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
     font-size: 0.42em;
     letter-spacing: 0.5px;
@@ -594,6 +617,14 @@
       <button id="btn-t2s" style="display:none;" data-i18n="b.t2s" data-i18n-title="cv.t2s" title="把输入框全文转成简体（OpenCC）">转为简体</button>
       <button id="btn-s2t" style="display:none;" data-i18n="b.s2t" data-i18n-title="cv.s2t" title="把输入框全文转成繁体（OpenCC）">转为繁体</button>
       <label class="check" id="oc-phrases-ctl" style="display:none;"><input type="checkbox" id="oc-phrases"> <span data-i18n="ck.ocph">同时转换常用词汇</span></label>
+    </div>
+    <!-- 粤语版说明（仅粤拼版显示）：用途边界 + 转换覆盖度。首次进入展开，点「知道了」记进 localStorage -->
+    <div id="jyut-note" hidden>
+      <p><b data-i18n="jy.h1">这是一个标读音的工具，不是翻译工具</b></p>
+      <p data-i18n="jy.p1">它只按字给出粤语读音，不保证这句话在粤语里会这么说、这么用。繁简与用词转换只是顺带做的，请不要拿它当普通话 / 国语 ⇄ 粤语的翻译工具。</p>
+      <p><b data-i18n="jy.h2">香港的用词转换还不完整</b></p>
+      <p data-i18n="jy.p2">OpenCC 的香港词汇表目前条目很少（以人名、地名为多），「出租车」「土豆」这类大陆用词只会转换用字，不会换成香港说的「的士」「薯仔」。遇到没覆盖的词，欢迎向 OpenCC 反馈，他们正在收集。</p>
+      <button type="button" id="jyut-note-ok" data-i18n="jy.ok">知道了</button>
     </div>
     <!-- 长文模式横幅：分块排版进度 + 退出按钮（仅 >3 万字时显示） -->
     <div id="lm-banner" hidden>
@@ -953,9 +984,10 @@
 window.__VARIANT = /*__VARIANT__*/null;
 </script>
 <script>
-/* ===== i18n：界面语言（简 zh-CN / 繁 zh-TW / 英 en）=====
+/* ===== i18n：界面语言（简 zh-CN / 繁 zh-TW / 港 zh-HK / 英 en）=====
    zh-CN 为源语言：静态节点里已是简体，无需 cn 包；
-   动态字符串统一 t(key, 中文默认值)，仅在非简体语言且包内有翻译时替换。 */
+   动态字符串统一 t(key, 中文默认值)，仅在非简体语言且包内有翻译时替换。
+   港包（hk）只给粤语版用：粤语版的「繁」自动指向它，台湾用字留给注音版。 */
 var I18N = {
   tw: {
     "doc.title": "拼音注音小助手",
@@ -970,6 +1002,11 @@ var I18N = {
     "b.clear": "清空",
     "b.t2s": "轉為簡體", "b.s2t": "轉為繁體",
     "cv.t2s": "把輸入框全文轉成簡體（OpenCC）", "cv.s2t": "把輸入框全文轉成繁體（OpenCC）",
+    "jy.h1": "這是一個標讀音的工具，不是翻譯工具",
+    "jy.p1": "它只按字給出粵語讀音，不保證這句話在粵語裡會這麼說、這麼用。繁簡與用詞轉換只是順帶做的，請不要拿它當普通話 / 國語 ⇄ 粵語的翻譯工具。",
+    "jy.h2": "香港的用詞轉換還不完整",
+    "jy.p2": "OpenCC 的香港詞彙表目前條目很少（以人名、地名為多），「出租車」「土豆」這類大陸用詞只會轉換用字，不會換成香港講的「的士」「薯仔」。遇到沒覆蓋的詞，歡迎向 OpenCC 回饋，他們正在收集。",
+    "jy.ok": "知道了",
     "l.ocvar": "繁簡轉換",
     "ocv.t": "簡體 ⇆ 標準繁體", "ocv.tw": "簡體 ⇆ 台灣繁體", "ocv.hk": "簡體 ⇆ 香港繁體",
     "ocv.hint": "選「台灣繁體 / 香港繁體」時，可配合「同時轉換常用詞彙」把地區常用詞一併轉換（滑鼠、軟體等）；「標準繁體」僅轉換用字。",
@@ -1204,6 +1241,268 @@ var I18N = {
     "cp.okPy": "複製好了：只有音標，標點和分段都保留。",
     "cp.noClip": "目前瀏覽器不支援複製，請改用「列印 / 匯出 PDF」。"
   },
+  hk: {
+    "doc.title": "拼音注音小助手",
+    "hd.title": "拼音注音小助手<span class=\"dot\"> · </span>為文章加上拼音或注音",
+    "hd.sub": "貼上或匯入文章 → 一鍵注音 → 翻頁閱讀 → 列印或匯出 PDF",
+    "sw.aria": "介面語言",
+    "in.h2": "輸入文章",
+    "in.ph": "把文章貼到這裏，可以多段；也可以點「匯入 TXT」選檔案。",
+    "in.aria": "文章輸入區",
+    "b.import": "匯入 TXT",
+    "b.sample": "範例文章",
+    "b.clear": "清空",
+    "b.t2s": "轉為簡體",
+    "b.s2t": "轉為繁體",
+    "cv.t2s": "把輸入框全文轉成簡體（OpenCC）",
+    "cv.s2t": "把輸入框全文轉成繁體（OpenCC）",
+    "jy.h1": "這是一個標讀音的工具，不是翻譯工具",
+    "jy.p1": "它只按字給出粵語讀音，不保證這句話在粵語裏會這麼說、這麼用。繁簡與用詞轉換只是順帶做的，請不要拿它當普通話 / 國語 ⇄ 粵語的翻譯工具。",
+    "jy.h2": "香港的用詞轉換還不完整",
+    "jy.p2": "OpenCC 的香港詞彙表目前條目很少（以人名、地名為多），「出租車」「土豆」這類大陸用詞只會轉換用字，不會換成香港講的「的士」「薯仔」。遇到沒覆蓋的詞，歡迎向 OpenCC 回饋，他們正在收集。",
+    "jy.ok": "知道了",
+    "l.ocvar": "繁簡轉換",
+    "ocv.t": "簡體 ⇆ 標準繁體",
+    "ocv.tw": "簡體 ⇆ 台灣繁體",
+    "ocv.hk": "簡體 ⇆ 香港繁體",
+    "ocv.hint": "選「台灣繁體 / 香港繁體」時，可配合「同時轉換常用詞彙」把地區常用詞一併轉換（滑鼠、軟件等）；「標準繁體」僅轉換用字。",
+    "ocv.tdis": "「標準繁體」轉換不涉及地區詞彙，此選項無效",
+    "ck.ocph": "同時轉換常用詞彙",
+    "ck.ocph.tip": "勾選後把地區常用詞一併轉換（滑鼠、軟件等）",
+    "cv.doing": "轉換中…",
+    "cv.fail": "轉換引擎載入失敗，請重新整理頁面再試。",
+    "b.print": "列印 / PDF",
+    "b.read": "閱讀模式",
+    "b.copy": "複製",
+    "copy.aria": "複製格式",
+    "fmt.word": "貼到 Word",
+    "fmt.ruby": "網頁 ruby 標籤",
+    "fmt.pair": "字-音標 對照",
+    "fmt.py": "只複製音標",
+    "fmt.zyweb": "網頁注音（HTML+CSS）",
+    "l.zyweb": "網頁字型",
+    "zyweb.none": "不使用（跟隨貼上目標網頁）",
+    "zyweb.iansui": "芫荽 Iansui（emtech 網絡字型）",
+    "zyweb.bpmf": "注音芫荽 BpmfIansui（IVS 內建注音）",
+    "zyweb.wenkai": "霞鶩文楷 TC（emtech 網絡字型）",
+    "zyweb.hint": "選擇後，複製的原始碼會一併引入對應網絡字型（font.emtech.cc 免費提供），貼上目標網頁無需安裝字型。注音芫荽 BpmfIansui 的國字字形內建右側注音（IVS 規格）：直排複製時會把每個字的正確讀音以 IVS 寫進文字、由字型標注；橫排複製時該字型僅用於注音符號，避免與結構標注重複。",
+    "nav.lbl": "預覽方式",
+    "nav.page": "翻頁",
+    "nav.scroll": "連續捲動",
+    "st.h2": "排版設定",
+    "b.save": "✓ 儲存設定",
+    "b.save.title": "把目前設定存為預設，下次開啟自動套用（只存在這台裝置的瀏覽器裏）",
+    "b.reset": "↺ 恢復預設",
+    "b.reset.title": "全部恢復預設（字號 28px、楷體、音標跟隨漢字、逐字注音、間距 2 / 2.3 / 12）",
+    "l.fontsize": "字號",
+    "l.fontfamily": "漢字字型",
+    "f.kai": "楷體（像課本）",
+    "f.lxgw": "霞鶩文楷 GB（線上·簡）",
+    "f.wenkaitc": "霞鶩文楷 TC（線上·繁）",
+    "f.iansui": "芫荽 Iansui（線上·繁）",
+    "f.song": "宋體",
+    "f.hei": "黑體",
+    "l.pyfont": "音標字型",
+    "pf.andika": "Andika（免費商用）",
+    "pf.bpmf": "ㄅㄆㄇ 注音字型",
+    "pf.inker": "印氪先生（像課本）",
+    "pf.follow": "跟隨漢字",
+    "pf.round": "圓潤手寫風",
+    "l.seg": "連排方式",
+    "seg.smart": "按詞連排",
+    "seg.reverse": "從後匹配",
+    "seg.none": "逐字注音",
+    "l.chargap": "字間距",
+    "ph.lbl": "音標方案",
+    "ph.py": "拼音",
+    "ph.zy": "注音",
+    "ph.tongyong": "通用拼音",
+    "ph.yale": "耶魯拼音",
+    "ph.wg": "威妥瑪（嚴式）",
+    "ph.wgs": "威妥瑪（簡式）",
+    "ph.mps2": "注音二式",
+    "ph.gr": "國語羅馬字",
+    "ph.cyr": "西里爾轉寫",
+    "cyr.tone.lbl": "聲調",
+    "cyr.tone.num": "數字",
+    "cyr.tone.none": "不標",
+    "wgs.tone.lbl": "聲調",
+    "wgs.tone.num": "數字",
+    "wgs.tone.none": "不標",
+    "wgs.u.lbl": "ü 寫法",
+    "l.zydir": "注音方向",
+    "zydir.aria": "注音方向",
+    "zydir.h": "橫排",
+    "zydir.v": "直排",
+    "l.lineh": "行間距",
+    "l.paragap": "段間距",
+    "l.align": "對齊",
+    "align.left": "左對齊",
+    "align.center": "置中",
+    "align.poem": "詩詞",
+    "align.tip": "左對齊：預設。置中：每行各自置中，適合律詩、絕句、歌詞。詩詞：各行左邊界對齊、整塊置中，適合詞、賦、現代詩",
+    "align.hint": "長按任意一行，可單獨調整",
+    "hint.ok": "知道了",
+    "ln.menu.follow": "跟隨全文",
+    "ln.menu.center": "置中",
+    "ln.menu.left": "左對齊",
+    "ln.title": "第 {n} 行的對齊",
+    "l.showpy": "音標",
+    "ck.showpy": "顯示",
+    "l.hi": "易錯字",
+    "ck.hi": "用底色標出多音字、兒化、的 / 地 / 得、一 / 不、輕聲",
+    "more.expand": "更多設定 ▸",
+    "more.collapse": "收起設定 ▴",
+    "b.more.title": "展開 / 收起低頻設定（瀏覽器會記住展開狀態）",
+    "l.localfont": "本地字型",
+    "ck.allfonts": "列出本機所有字型",
+    "allfonts.hint": "預設只列常用字型。讀取本機字型只有電腦版 Chrome / Edge 支援，第一次勾選時會問你是否允許。",
+    "l.ts": "一/不變調",
+    "l.rdstd": "讀音標準",
+    "rs.aria": "讀音標準",
+    "rs.cn": "普通話讀音",
+    "rs.tw": "台灣讀音",
+    "rs.hint": "普通話讀音以《現代漢語詞典》為準（資料來源 <code>zh-lx/pinyin-pro</code> 專案），台灣讀音以《重編國語辭典修訂本》為準（資料來源 <code>g0v/萌典</code> 專案）。",
+    "rs.decompressFail": "目前瀏覽器不支援解壓縮台灣讀音差異表（需較新版本的 Chrome / Edge / Firefox / Safari），已回退為普通話讀音。",
+    "ts.aria": "一不變調標註方式",
+    "ts.on": "標變調",
+    "ts.off": "標本調",
+    "ts.hint": "「變調」按語流中的實際讀音標註（一個 yí gè）；「本調」按詞典裏的聲調標註（一個 yī gè）。兩者都是規範寫法，只是取捨不同。",
+    "l.erhua": "兒化音",
+    "eh.aria": "兒化音標註方式",
+    "eh.char": "分開標",
+    "eh.merge": "合併標",
+    "l.pfooter": "列印頁尾",
+    "ck.pfooter": "顯示「本機執行 · 內容不上傳」",
+    "l.engine": "拼音引擎",
+    "b.engcheck": "檢查更新",
+    "tip.hint": "小提示：點預覽裏任一個字可以換讀音（輕聲、助詞讀音都在候選裏）；點「兒」字決定兒化還是單獨讀。勾「易錯字」能快速找出該核對的地方。「閱讀模式」會收起編輯區，把裝置直接交給孩子。",
+    "pv.h2": "預覽",
+    "pv.note": "拼音由引擎自動判斷：不同版本詞典不同，準確率也不同（完整詞典版最高），都做不到 100%。教學前建議勾「易錯字」過一遍，有疑問的字點一下就能改讀音。",
+    "pg.prev": "← 上一頁",
+    "pg.next": "下一頁 →",
+    "pv.mobilehint": "螢幕較窄，已自動採用連續排版，上下滑動即可閱讀",
+    "empty.tip": "貼好文章，拼音就顯示在這裏",
+    "help.h2": "怎麼用",
+    "b.help.title": "摺疊 / 展開使用說明",
+    "help.collapse": "▸ 收起",
+    "help.expand": "▾ 展開怎麼用",
+    "help.li1": "<b>貼文章</b>：貼到輸入框，或點「匯入 TXT」選檔案（自動辨識 UTF-8 / GBK）。超過 3 萬字會自動進入長文模式，最多 200 萬字，編輯框變成唯讀，點「退出長文模式」可回到編輯。",
+    "help.li2": "<b>選音標</b>：「音標方案」有九種——漢語拼音、通用拼音、耶魯、威妥瑪嚴式 / 簡式、注音、注音二式、國語羅馬字、西里爾轉寫。只換寫法，讀音不變；威妥瑪簡式和西里爾還能選「數字 / 不標」。",
+    "help.li3": "<b>調排版</b>：字號、字型、音標字型隨時換；「拼音位置」可放字上方或右側（注音模式是「橫排 / 直排」）；字距、行距、段距拖動即生效。改亂了點「恢復預設」。",
+    "help.li4": "<b>查讀音</b>：勾「易錯字」會用底色標出多音字、兒化、的 / 地 / 得、一 / 不、輕聲；點預覽裏任一個字可換讀音，輕聲和助詞讀音都在候選裏；點「兒」字可決定兒化還是單獨讀。",
+    "help.li5": "<b>列印</b>：預覽按 A4 自動分頁，所見即所印；「列印 / PDF」一次輸出全部頁。長文模式會先問列印哪幾頁，也可以分批列印（每批 100 頁）再合成一個 PDF，全程在本機完成。",
+    "help.li6": "<b>複製</b>：「複製」有五種格式——貼到 Word、網頁 ruby 標籤、網頁注音（HTML+CSS）、字-音標對照、只複製音標。",
+    "help.li7": "<b>給孩子讀</b>：點「閱讀模式」收起編輯區，方向鍵翻頁；底部工具列可逐句高亮、朗讀、麥克風跟讀（實驗），下次進來接着讀。",
+    "help.li8": "<b>介面與讀音</b>：右上角切簡體 / 繁體 / English；「更多設定」裏可換台灣讀音、把文章轉成繁體（完整詞典版和注音版）、列出本機字型、檢查拼音引擎更新。",
+    "help.privacy": "全部處理都在你自己的瀏覽器裏完成，文章不會上傳。只有「檢查更新」「線上字型」和第一次「合併 PDF」會連網，都不涉及文章內容。麥克風跟讀用瀏覽器內建的語音辨識，音訊可能由瀏覽器廠商處理，介意就別開。",
+    "ft.brand": "漢語拼音注音小助手",
+    "ft.tag": "本機執行 · 文章內容不上傳",
+    "ft.eng": " · 拼音引擎 pinyin-pro",
+    "ft.lic": "推薦拼音字型「印氪先生漢語拼音」需自行安裝，僅限非商業場景使用，如需商用請聯絡作者 <a href=\"https://www.zhihu.com/people/zou-wen-biao\" target=\"_blank\" rel=\"noopener\">印氪先生</a> 購買授權（本工具程式碼中不含字型檔案）",
+    "a.close": "關閉",
+    "pt.title": "沒有安裝「印氪先生拼音字型」",
+    "pt.p1": "目前暫時用楷體顯示拼音。楷體裏的拼音是普通英文字母（雙層 a），不是課本寫法；給孩子用，建議裝一套專門的拼音字型。手機 / 平板裝不了字型，換回「Andika」就好。",
+    "pt.dl": "下載：印氪先生漢語拼音優化版W4.zip（藍奏雲）",
+    "pt.author": "字型作者：",
+    "pt.steps": "安裝步驟：下載 → 解壓縮 → 雙擊 <b>印氪先生漢語拼音優化版W4-Regular-1.001.ttf</b> → 點左上角「安裝」。安裝後需<b>完全結束並重新啟動瀏覽器</b>（僅重新整理頁面無效），再點下方「重新偵測」。",
+    "pt.recheck": "重新偵測",
+    "pt.lic": "該字型僅限非商業場景下使用；如需商用或內嵌，請聯絡字型作者印氪先生購買授權。本工具程式碼中不包含字型檔案。",
+    "wf.title": "正在載入網絡字型「{name}」",
+    "pop.title": "選擇這個字的讀音",
+    "b.exitread": "退出閱讀 ✕",
+    "u.chars": "{n} 字",
+    "u.clipped": "（超 3 萬字，僅注音前 3 萬字）",
+    "u.page": "{a} / {b} 頁",
+    "u.pageEst": "{a} / 約 {b} 頁",
+    "lm.tag": "（長文模式）",
+    "lm.exit": "退出長文模式",
+    "rd.play": "朗讀",
+    "rd.pause": "暫停",
+    "rd.playTitle": "開始朗讀",
+    "rd.pauseTitle": "暫停朗讀",
+    "rd.prevTitle": "上一句",
+    "rd.nextTitle": "下一句",
+    "rd.rate": "語速",
+    "rd.voice": "音色",
+    "rd.voiceDefault": "預設音色",
+    "rd.mic": "跟讀",
+    "rd.micStop": "停止跟讀",
+    "rd.micTitle": "麥克風跟讀（實驗）",
+    "rd.progressTitle": "閱讀進度",
+    "rd.progress": "{a} / {b} 句",
+    "rd.empty": "尚無內容",
+    "rd.noTts": "目前瀏覽器不支援語音朗讀，仍可用高亮跟讀。",
+    "rd.noJyutVoice": "此裝置未設粵語語音，朗讀會改用其他語音，讀音可能與上面標註的對不上。可在系統設定加入「粵語（香港）」語音後再試。",
+    "rd.ttsError": "朗讀出錯，請重試或換一個音色。",
+    "rd.done": "讀完啦！",
+    "rd.resume": "已回到上次讀到的位置（第 {a} 句）",
+    "rd.longNoPage": "長文模式下朗讀暫不自動翻頁，可手動翻頁。",
+    "rd.micUnsupported": "目前瀏覽器不支援麥克風跟讀（建議 Chrome / Edge）。",
+    "rd.micListening": "請開始朗讀，我會跟隨你的聲音高亮。",
+    "rd.micDenied": "麥克風權限被拒絕，請在瀏覽器允許後重試。",
+    "rd.micError": "跟讀辨識出錯，請重試。",
+    "rd.micConfirm": "麥克風跟讀由瀏覽器內建的語音辨識服務處理，音訊可能會傳送到瀏覽器或系統廠商的伺服器（本工具仍然不會收到您的文章內容）。確定開啟嗎？",
+    "rd.micCancelled": "已取消開啟麥克風跟讀。",
+    "lm.excerpt": "（長文模式：全文 {n} 字已載入，點擊下方「退出長文模式」可恢復編輯）",
+    "lm.max": "單次最多支援 200 萬字，已只載入前 200 萬字。",
+    "lm.wait": "正在排版，請稍候…",
+    "lm.done": "長文模式：共 {n} 字 · 共 {p} 頁",
+    "lm.prog": "長文模式：共 {n} 字 · 已排版 {p} 頁（預計約 {e} 頁）",
+    "pd.title": "列印 / 匯出 PDF（長文）",
+    "pd.range": "列印範圍",
+    "pd.go": "列印這幾頁",
+    "pd.all": "分批列印（每批 100 頁）",
+    "pd.merge": "合併 PDF…",
+    "pd.cancel": "取消",
+    "pd.hint": "長文分批列印：每批在列印對話框中「另存為 PDF」儲存為一個檔案，關閉對話框後會自動彈出下一批；全部儲存後點「合併 PDF 檔案」，按檔名順序合併成一個 PDF（全程本機完成，不上傳）。",
+    "pd.errRange": "頁碼範圍無效",
+    "pd.prep": "正在排版所選頁…",
+    "pd.saving": "即將列印第 {a}–{b} 頁，請在列印對話框中選擇「另存為 PDF」。",
+    "pd.prepAll": "正在排版全書，視文章長度可能需要一些時間…",
+    "pd.batch": "即將列印第 {a}–{b} 頁（第 {i} / {m} 批），儲存後自動繼續。",
+    "pd.merging": "正在合併 {n} 個 PDF…",
+    "pd.merged": "已合併 {n} 個 PDF，開始下載 merged.pdf。",
+    "pd.mergeFail": "合併失敗：請確認已連網（首次需載入合併元件）且所選檔案為 PDF。",
+    "pop.erh.merge": "前字加 r（兒化：huār）",
+    "pop.erh.char": "兒單獨注音（非兒化：huā ér）",
+    "pop.cut": "從這個字起分開",
+    "pop.uncut": "併回前一個字",
+    "pop.join": "和後一個字連起來",
+    "pop.unjoin": "和後一個字分開",
+    "pop.reset": "恢復預設讀音",
+    "a.tooBig": "檔案超過 2MB，請拆分後再匯入。",
+    "a.encoding": "無法識別檔案編碼，請將 txt 另存為 UTF-8 或 ANSI 編碼後再匯入。",
+    "a.readFail": "讀取檔案失敗，請重試。",
+    "pf.ok": "✓ 已偵測到「印氪先生漢語拼音」，已自動選為音標字型",
+    "pf.fail": "仍未偵測到字型：請確認已雙擊安裝，並已完全結束並重新啟動瀏覽器後重試",
+    "a.noFontEnum": "目前瀏覽器不支援列舉本機字型：請使用較新版本的 Chrome / Edge，並允許「字型存取」權限。",
+    "a.fontEnumFail": "無法讀取本機字型清單，請重試。",
+    "a.fontEnumDenied": "您拒絕了「字型存取」權限，已取消勾選。可重新勾選後授權，或繼續使用上方常用字型。",
+    "a.fontEnumErr": "列舉本機字型失敗，已取消勾選。",
+    "seg.decompressFail": "目前瀏覽器不支援解壓縮分詞詞典（需較新版本的 Chrome / Edge / Firefox / Safari），已回退為逐字注音。",
+    "a.styleSaved": "已儲存，下次開啟自動套用。\\n（只存在這台裝置的瀏覽器裏：清快取會恢復預設，換裝置不同步。）",
+    "a.styleSaveFail": "儲存失敗：瀏覽器儲存空間不可用（可能處於無痕模式或已停用儲存）。",
+    "fonts.group": "本機已安裝字型",
+    "eng.checking": " · 檢查中……",
+    "eng.srcEmbedded": "內嵌",
+    "eng.srcCache": "快取更新包",
+    "eng.srcUnknown": "未知",
+    "eng.netFail": "網絡不可用或檢查失敗（已嘗試 jsDelivr 與 npmmirror 兩個引擎源），請稍後再試。離線時內嵌引擎仍可正常使用。",
+    "eng.upToDate": "目前已是最新版本：v{v}。",
+    "eng.new": "發現新版拼音引擎 v{v}（目前 v{c}），已快取到本機，<a href=\"#\" id=\"lnk-engine-reload\" style=\"color:var(--accent-dark);\">重新整理頁面</a>後生效。",
+    "wf.loading": "正在從雲端載入「{name}」字型檔案，首次使用請稍候；載入完成後會<b>快取在本裝置</b>，再次使用無需重複下載。",
+    "cp.noText": "請先輸入文章內容。",
+    "cp.okWord": "複製好了，去 Word 裏貼上吧。",
+    "cp.fail": "複製失敗，請改用「列印 / 匯出 PDF」。",
+    "cp.failRetry": "複製失敗，請重試。",
+    "cp.noRich": "目前瀏覽器不支援富文本複製，請改用「列印 / 匯出 PDF」。",
+    "cp.okRuby": "已複製全文 HTML ruby 標籤。",
+    "cp.okWeb": "已複製 HTML+CSS 注音原始碼，貼進網頁即可得到與預覽一致的注音排版。",
+    "cp.okPair": "複製好了：每行一個字和它的音標。",
+    "cp.okPy": "複製好了：只有音標，標點和分段都保留。",
+    "cp.noClip": "目前瀏覽器不支援複製，請改用「列印 / 匯出 PDF」。",
+  },
   en: {
     "doc.title": "Pinyin & Zhuyin Annotator",
     "hd.title": "Pinyin & Zhuyin Annotator<span class=\"dot\"> · </span>Add pinyin or zhuyin to any text",
@@ -1217,6 +1516,11 @@ var I18N = {
     "b.clear": "Clear",
     "b.t2s": "To Simplified", "b.s2t": "To Traditional",
     "cv.t2s": "Convert the whole text to Simplified (OpenCC)", "cv.s2t": "Convert the whole text to Traditional (OpenCC)",
+    "jy.h1": "A pronunciation tool, not a translator",
+    "jy.p1": "It only shows how each character is read in Cantonese; it does not guarantee a Cantonese speaker would say it, or use it, that way. Character-set and wording conversion is a side convenience — please don't use it as a Mandarin ⇄ Cantonese translator.",
+    "jy.h2": "Hong Kong wording conversion is still incomplete",
+    "jy.p2": "OpenCC's Hong Kong phrase list is short (mostly names of people and places), so everyday words are converted character by character rather than into Hong Kong usage. If a word is missing, please report it to the OpenCC project — they are collecting entries.",
+    "jy.ok": "Got it",
     "l.ocvar": "SC ⇄ TC profile",
     "ocv.t": "Simplified ⇄ Standard Traditional", "ocv.tw": "Simplified ⇄ Taiwan Traditional", "ocv.hk": "Simplified ⇄ Hong Kong Traditional",
     "ocv.hint": "With Taiwan / Hong Kong Traditional selected, tick \"Convert common vocabulary\" to localize regional words as well (e.g. 鼠标→滑鼠, 软件→軟體); Standard Traditional converts characters only.",
@@ -1382,6 +1686,7 @@ var I18N = {
     "rd.progress": "{a} / {b} sentences",
     "rd.empty": "No text",
     "rd.noTts": "Speech is not supported in this browser; highlighting still works.",
+    "rd.noJyutVoice": "This device has no Cantonese voice, so reading falls back to another voice and may not match the annotations. Add a Cantonese (Hong Kong) voice in system settings and try again.",
     "rd.ttsError": "Speech failed. Please retry or choose another voice.",
     "rd.done": "Finished!",
     "rd.resume": "Resumed from sentence {a}",
@@ -1453,21 +1758,48 @@ var I18N = {
   }
 };
 var I18N_ORIG = null;   // 简体原文快照（首次 applyI18n 时填充）
-function i18nT(key, def) {
+/* 粤语版的「繁」用香港用字与香港术语（説/裏/衞、軟件/網絡），
+   台湾用字（說/裡/衛）留给注音版——两套异体字不能共用一个包。
+   用 __VARIANT 判断而非 jyutOn()：本函数在词典加载前就会被调到。 */
+function packLang() {
   var L = window.__LANG || "cn";
+  if (L === "tw" && window.__VARIANT && window.__VARIANT.jyut) return "hk";
+  return L;
+}
+/* 版本专属文案：主标题要说「粤语」而不是「拼音」，这属于版本差异而非语言差异，
+   简 / 繁 / 英三套界面下都要覆盖。 */
+var VARIANT_I18N = (window.__VARIANT && window.__VARIANT.jyut) ? {
+  cn: {
+    "doc.title": "粤语注音小助手",
+    "hd.title": "粤语注音小助手<span class=\"dot\"> · </span>给汉字标粤语读音"
+  },
+  hk: {
+    "doc.title": "粵語注音小助手",
+    "hd.title": "粵語注音小助手<span class=\"dot\"> · </span>為漢字標粵語讀音"
+  },
+  en: {
+    "doc.title": "Cantonese Annotator",
+    "hd.title": "Cantonese Annotator<span class=\"dot\"> · </span>Jyutping for every character"
+  }
+} : null;
+function i18nT(key, def) {
+  var L = packLang();
+  if (VARIANT_I18N && VARIANT_I18N[L] && VARIANT_I18N[L][key] != null) return VARIANT_I18N[L][key];
   if (L !== "cn" && I18N[L] && I18N[L][key] != null) return I18N[L][key];
   return def == null ? key : def;
 }
 function applyI18n() {
-  var L = window.__LANG || "cn";
-  document.documentElement.lang = L === "cn" ? "zh-CN" : (L === "tw" ? "zh-TW" : "en");
+  var L = packLang();
+  document.documentElement.lang = L === "cn" ? "zh-CN" : (L === "en" ? "en" : (L === "hk" ? "zh-HK" : "zh-TW"));
   var pack = L === "cn" ? null : I18N[L];
+  var vpack = VARIANT_I18N ? VARIANT_I18N[L] : null;
   /* 原始快照：首次运行（静态 HTML 仍是简体原文）时拍下每个节点的初始内容，
      切回简体时据此恢复——否则被繁/英文覆盖过的节点将永远回不去。 */
   if (I18N_ORIG === null) {
     I18N_ORIG = { title: document.title };
   }
-  if (pack && pack["doc.title"]) document.title = pack["doc.title"];
+  var titlePack = vpack || pack;
+  if (titlePack && titlePack["doc.title"]) document.title = titlePack["doc.title"];
   else if (L === "cn") document.title = I18N_ORIG.title;
   var lists = [
     ["[data-i18n]", "data-i18n", function (el) { return el.innerHTML; }, function (el, v) { el.innerHTML = v; }],
@@ -1481,7 +1813,8 @@ function applyI18n() {
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i], k = el.getAttribute(attr);
       if (el.__i18nOrig === undefined) el.__i18nOrig = getV(el);   // 拍快照（仅首次）
-      if (pack && pack[k] != null) setV(el, pack[k]);              // 翻译
+      if (vpack && vpack[k] != null) setV(el, vpack[k]);           // 版本专属文案优先
+      else if (pack && pack[k] != null) setV(el, pack[k]);         // 翻译
       else if (L === "cn" && el.__i18nOrig != null) setV(el, el.__i18nOrig);  // 恢复简体原文
     }
   }
@@ -1491,9 +1824,13 @@ function applyI18n() {
   try { saved = localStorage.getItem("py-lang"); } catch (eL1) { saved = null; }
   if (saved !== "cn" && saved !== "tw" && saved !== "en") {
     var nl = (navigator.languages && navigator.languages[0]) || navigator.language || "";
-    saved = /zh-(tw|hk|mo)|hant/i.test(nl) ? "tw" : (/^en/i.test(nl) ? "en" : "cn");
-    // 变体默认界面语言：仅在用户从未选择过语言时生效（如 zhuyin 版默认繁体界面）
-    if (window.__VARIANT && window.__VARIANT.lang && !(/zh-(tw|hk|mo)|hant/i.test(nl) || /^en/i.test(nl))) {
+    var isHant = /zh-(tw|hk|mo)|hant/i.test(nl);
+    var isHans = /zh-(cn|sg|my)|zh-hans/i.test(nl);
+    var isEn = /^en/i.test(nl);
+    saved = isHant ? "tw" : (isEn ? "en" : "cn");
+    /* 变体默认界面语言：仅在用户从未选择过语言时生效（如 zhuyin 版默认繁体界面）。
+       粤语版例外——简体中文系统的是广东用户，要留在简体界面，那是主力用户群之一。 */
+    if (window.__VARIANT && window.__VARIANT.lang && !(isHant || isEn || (window.__VARIANT.jyut && isHans))) {
       saved = window.__VARIANT.lang;
     }
   }
@@ -2537,7 +2874,149 @@ function applyI18n() {
     }
     return null;
   }
+  /* ===== 粤拼（Jyutping）读音引擎 =====
+     仅粤拼版内嵌数据（构建时注入），其余版本恒为 null、整套逻辑不启用。
+     词典格式见 seg-dict/build-jyutping.js：#char 段「字\t读音1 读音2」，#word 段「词\t音节 音节」。
+     读音来源 rime-cantonese-upstream（CC-BY-4.0），校验基准 LSHK jyutping-table（CC-BY-4.0）。 */
+  var JYUTDICT_B64 = /*__JYUTDICT__*/null;
+  var JYUT = { ready: false, failed: false, loading: null, chars: null, words: null, maxLen: 1 };
+
+  function jyutOn() { return !!JYUTDICT_B64; }
+
+  function jyutParse(payload) {
+    var chars = new Map(), words = new Map(), maxLen = 1, mode = "";
+    var lines = payload.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if (line === "#char") { mode = "char"; continue; }
+      if (line === "#word") { mode = "word"; continue; }
+      if (!line) continue;
+      var tab = line.indexOf("\t");
+      if (tab < 0) continue;
+      var key = line.slice(0, tab), val = line.slice(tab + 1);
+      if (mode === "char") {
+        chars.set(key, val.split(" "));
+      } else {
+        var syl = val.split(" ");
+        var head = key.charAt(0);
+        if (!words.has(head)) words.set(head, []);
+        words.get(head).push([key, syl]);
+        if (syl.length > maxLen) maxLen = syl.length;
+      }
+    }
+    // 每个首字下按词长降序，最长匹配顺序扫描即可
+    words.forEach(function (arr) { arr.sort(function (a, b) { return b[1].length - a[1].length; }); });
+    JYUT.chars = chars; JYUT.words = words; JYUT.maxLen = maxLen; JYUT.ready = true;
+  }
+
+  function ensureJyutDict() {
+    if (JYUT.ready || JYUT.failed || !JYUTDICT_B64) return Promise.resolve(JYUT.ready);
+    if (JYUT.loading) return JYUT.loading;
+    if (typeof DecompressionStream === "undefined" || typeof atob === "undefined") { JYUT.failed = true; return Promise.resolve(false); }
+    JYUT.loading = new Promise(function (resolve) {
+      try {
+        var bin = atob(JYUTDICT_B64), u8 = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+        new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).text().then(function (payload) {
+          try { jyutParse(payload); } catch (e) { JYUT.failed = true; }
+          JYUT.loading = null;
+          resolve(JYUT.ready);
+        }).catch(function () { JYUT.failed = true; JYUT.loading = null; resolve(false); });
+      } catch (e2) { JYUT.failed = true; JYUT.loading = null; resolve(false); }
+    });
+    return JYUT.loading;
+  }
+
+  /* 把一段文本切成 [{text, jy: [音节...] | null, han: bool}]：
+     先按词表最长匹配，命中则整词取读音；未命中按单字查表；标点与西文归为 han=false 的间隙。 */
+  function jyutTokens(parText) {
+    var chars = Array.from(parText), out = [], i = 0;
+    while (i < chars.length) {
+      var c = chars[i];
+      if (!HAN_RE.test(c)) {                       // 标点 / 数字 / 西文
+        var j = i + 1;
+        while (j < chars.length && !HAN_RE.test(chars[j])) j++;
+        out.push({ text: chars.slice(i, j).join(""), jy: null, han: false });
+        i = j;
+        continue;
+      }
+      var hit = null, cands = JYUT.words.get(c);
+      if (cands) {
+        for (var k = 0; k < cands.length; k++) {
+          var w = cands[k][0], syl = cands[k][1], n = syl.length;
+          if (n <= chars.length - i && chars.slice(i, i + n).join("") === w) { hit = { text: w, jy: syl }; break; }
+        }
+      }
+      if (hit) { out.push({ text: hit.text, jy: hit.jy, han: true }); i += Array.from(hit.text).length; continue; }
+      out.push({ text: c, jy: JYUT.chars.get(c) || null, han: true });
+      i++;
+    }
+    return out;
+  }
+
+  /* 字形归一化：rime 数据是繁体字表，简体直查只有 69% 命中。
+     整句走 OpenCC 转成查询用字形（s2t / s2tw / s2hk），覆盖率回到 99.8%；
+     实测 93,687/93,688 条词条转换后长度不变，所以能按索引对齐回原文。
+     万一某句长度变了（极罕见），退回原文查表——宁可少几个读音，也不能整体错位。 */
+  function jyutNormalize(text) {
+    if (!openCC) return text;
+    var v = ocVariant();
+    var to = v === "tw" ? "tw" : v === "hk" ? "hk" : "t";
+    var out;
+    try { out = openCC.get("cn", to)(text); } catch (e) { return text; }
+    return Array.from(out).length === Array.from(text).length ? out : text;
+  }
+
+  /* 与 annotate() 输出同一套 DOM 结构（py-result-item / py-chinese-item / ruby / rt.py-pinyin-item），
+     这样点字改读音、易错字高亮、分页测量、复制都无需改动即可复用。
+     一期只出「逐字 ruby」：词表只用于定读音（多音字取 pron_rank 最高的），不做词级连排。 */
+  function annotateJyut(parText, offset) {
+    var norm = jyutNormalize(parText);
+    var toks = jyutTokens(norm);
+    var out = "", ci = offset;
+    for (var t = 0; t < toks.length; t++) {
+      var tk = toks[t];
+      if (!tk.han) {
+        out += '<span class="py-gap">' + esc(tk.text) + "</span>";
+        ci += Array.from(tk.text).length;   // 标点同样占字序，漏加会让后面每个字都错位
+        continue;
+      }
+      var charsOf = Array.from(tk.text);
+      /* 词级连排：同一个词的字包进 .py-word，词间留一点空隙，分页测量时也按词整体处理，
+         不会把词拆到两行——粤语的读音是挂在词上的，词被拦腰截断读起来就断了。
+         只包真正的多字词：单字若也各占一个词组，字距会被 0.16em 边距撑得像拉开了的字距。 */
+      var wordOpen = charsOf.length > 1;
+      if (wordOpen) out += '<span class="py-word">';
+      for (var c = 0; c < charsOf.length; c++) {
+        var ch = charsOf[c];
+        var idx = ci + c;
+        var own = tk.jy && tk.jy[c] ? tk.jy[c] : "";
+        if (own) defaults[idx] = own;
+        var reading = overrides[idx] || own;
+        var cls = "py-result-item";
+        if (overrides[idx]) cls += " fixed";
+        if (hiSet && hiSet[idx]) cls += " hi";
+        // 显示用的汉字取「原文」而非归一化后的字：用户输入简体就显示简体
+        var shownCh = Array.from(parText)[idx - offset] || ch;
+        // 结构与 pinyin-pro 的输出保持一致：汉字只出现一次、包在 ruby 内，rp 供不支持 ruby 的浏览器回退
+        // 调号按 LSHK 规范保持基线数字，只加字重与颜色（不出上标）
+        var rtHtml = esc(reading).replace(/([1-6])$/, '<b class="tone">$1</b>');
+        out += '<span class="' + cls + '" data-ci="' + idx + '">' +
+          "<ruby>" +
+          '<span class="py-chinese-item">' + esc(shownCh) + "</span>" +
+          "<rp>(</rp>" +
+          '<rt class="py-pinyin-item">' + rtHtml + "</rt>" +
+          "<rp>)</rp>" +
+          "</ruby></span>";
+      }
+      if (wordOpen) out += "</span>";
+      ci += charsOf.length;
+    }
+    return out;
+  }
+
   function annotate(parText, offset) {
+    if (jyutOn() && JYUT.ready) return annotateJyut(parText, offset);
     var rtFn = getPhScheme().rtHtml;   // 输出层序列化（拼音原样、注音转符号栈）
     var htmlStr = lib.html(parText, { toneSandhi: toneSandhi });
     // 注意：py-result-item 内部嵌套 py-chinese-item，必须匹配到 </ruby></span> 才是完整注音单元
@@ -3676,30 +4155,48 @@ function applyI18n() {
     popChar.textContent = hanChar;
     popOpts.innerHTML = "";
     var alts = [];
-    try {
-      var poly = lib.polyphonic(text);
-      if (poly && poly[idx]) alts = poly[idx].split(/\s+/).filter(Boolean);
-    } catch (e) { alts = []; }
-    // 引擎缺收的读音（骑 jì / 偕 jiē 等）由项目补充表补齐候选
-    var extra = POLY_EXTRA[hanChar];
-    if (extra) {
-      extra.forEach(function (r) { if (alts.indexOf(r) === -1) alts.push(r); });
+    if (jyutOn() && JYUT.chars) {
+      /* 粤拼的候选来自粤语字表，不是普通话多音字表。
+         字表是繁体，所以要先在上下文里归一化再取字——单字转换会把「干」认成「乾」，
+         取邻近几个字一起转才能落到正确的字形上（干净→乾、干活→幹）。 */
+      var fullChars = Array.from(text);
+      var from = Math.max(0, idx - 6), to = Math.min(fullChars.length, idx + 7);
+      var seg = fullChars.slice(from, to).join("");
+      var segLen = to - from;
+      var normChars = Array.from(jyutNormalize(seg));
+      // 归一化前后等长才按偏移取字；不等长（极罕见）退回单字转换
+      var jyChar = normChars.length === segLen
+        ? normChars[idx - from]
+        : (jyutNormalize(hanChar) || hanChar);
+      var jyAll = JYUT.chars.get(jyChar) || JYUT.chars.get(hanChar) || [];
+      for (var ja = 0; ja < jyAll.length; ja++) if (alts.indexOf(jyAll[ja]) === -1) alts.push(jyAll[ja]);
+      if (reading && alts.indexOf(reading) === -1) alts.unshift(reading);
+    } else {
+      try {
+        var poly = lib.polyphonic(text);
+        if (poly && poly[idx]) alts = poly[idx].split(/\s+/).filter(Boolean);
+      } catch (e) { alts = []; }
+      // 引擎缺收的读音（骑 jì / 偕 jiē 等）由项目补充表补齐候选
+      var extra = POLY_EXTRA[hanChar];
+      if (extra) {
+        extra.forEach(function (r) { if (alts.indexOf(r) === -1) alts.push(r); });
+      }
+      if (reading && alts.indexOf(reading) === -1) alts.unshift(reading);
+      // 「一 / 不」：引擎多音字数据只登记本调（yī / bù），补全变调候选供手动指定
+      if (hanChar === "一") {
+        ["yī", "yí", "yì"].forEach(function (r) { if (alts.indexOf(r) === -1) alts.push(r); });
+      } else if (hanChar === "不") {
+        ["bù", "bú"].forEach(function (r) { if (alts.indexOf(r) === -1) alts.push(r); });
+      }
+      if (twRd && alts.indexOf(twRd) === -1) alts.push(twRd); // 台湾读音也进候选
+      var particle = PARTICLE[hanChar];
+      if (particle && alts.indexOf(particle) === -1) alts.push(particle);
+      // 过滤掉当前方案显示不了的读音、教材不用的边缘读音与重复项
+      alts = cleanAlts(alts, reading, phText, getPhScheme().script === "latin");
     }
-    if (reading && alts.indexOf(reading) === -1) alts.unshift(reading);
-    // 「一 / 不」：引擎多音字数据只登记本调（yī / bù），补全变调候选供手动指定
-    if (hanChar === "一") {
-      ["yī", "yí", "yì"].forEach(function (r) { if (alts.indexOf(r) === -1) alts.push(r); });
-    } else if (hanChar === "不") {
-      ["bù", "bú"].forEach(function (r) { if (alts.indexOf(r) === -1) alts.push(r); });
-    }
-    if (twRd && alts.indexOf(twRd) === -1) alts.push(twRd); // 台湾读音也进候选
-    var particle = PARTICLE[hanChar];
-    if (particle && alts.indexOf(particle) === -1) alts.push(particle);
-    // 过滤掉当前方案显示不了的读音、教材不用的边缘读音与重复项
-    alts = cleanAlts(alts, reading, phText, getPhScheme().script === "latin");
     if (!alts.length) alts = [reading || "—"];
-    // 儿字：额外提供儿化 / 非儿化强制选项
-    if (hanChar === "儿" && idx > 0 && HAN_RE.test(text[idx - 1])) {
+    // 儿字：额外提供儿化 / 非儿化强制选项（粤语无儿化，粤拼版不出现）
+    if (hanChar === "儿" && !jyutOn() && idx > 0 && HAN_RE.test(text[idx - 1])) {
       var ehBtn = document.createElement("button");
       ehBtn.type = "button";
       ehBtn.textContent = i18nT("pop.erh.merge", "前字加 r（儿化：huār）");
@@ -3716,7 +4213,7 @@ function applyI18n() {
     alts.forEach(function (r) {
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = (r === "—") ? r : phText(r);
+      b.textContent = (r === "—") ? r : (jyutOn() ? r : phText(r));
       if (r === reading) b.className = "cur";
       else if (r === particle) b.className = "opt-neutral";
       b.addEventListener("click", function () {
@@ -3727,8 +4224,8 @@ function applyI18n() {
       });
       popOpts.appendChild(b);
     });
-    // 分词手动调整：断词 / 合词（仅分词模式下提供）
-    if (segScheme !== "none" && segDict) {
+    // 分词手动调整：断词 / 合词（仅分词模式下提供；粤拼一期是逐字 ruby，没有词级分组）
+    if (segScheme !== "none" && segDict && !jyutOn()) {
       var cutBtn = document.createElement("button");
       cutBtn.type = "button";
       cutBtn.textContent = segOverrides[idx] === "cut" ? i18nT("pop.uncut", "并回前一个字") : i18nT("pop.cut", "从这个字起分开");
@@ -4028,12 +4525,29 @@ function applyI18n() {
     if (!getPhScheme(id).pyFont) selectPyFontByKey(PYFONT_ZY_KEY);
     else if ($("pyfont").value.indexOf(PYFONT_ZY_KEY) !== -1) applyDefaultPyFont();
   }
+  /* 「印氪先生」只有汉语拼音用得上（字体全名就叫「印氪先生汉语拼音」），
+     它把拼音字母排成课本那种单层 a、带调号的样子。选了耶鲁、威妥玛、注音、粤拼，
+     这套字体对它们毫无作用——留着只会让人以为「选了能变样」，实际什么都没变。
+     粤拼版更是从头到尾都用不上，直接不出现。 */
+  function syncInkerOption() {
+    var sel = $("pyfont");
+    if (!sel) return;
+    var show = !jyutOn() && !!getPhScheme().pyFont;
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value.indexOf(PY_FONT_OPT_KEY) !== -1) {
+        sel.options[i].hidden = !show;
+        sel.options[i].disabled = !show;
+        if (!show && sel.selectedIndex === i) selectBuiltinPyFont();
+        return;
+      }
+    }
+  }
   // 初始化应用选中项（默认楷体；下方字体就绪后若已安装拼音字体则自动切换为人教版）
   preview.style.setProperty("--py-font", $("pyfont").value);
   var savedPyFontChosen = false;   // 「保存样式」恢复了用户自选的拼音字体时，阻止此处自动切换覆盖
   if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
     document.fonts.ready.then(function () {
-      if (!savedPyFontChosen && getPhScheme().pyFont && pyFontInstalled() && $("pyfont").value.indexOf(PY_FONT_OPT_KEY) === -1) {
+      if (!savedPyFontChosen && !jyutOn() && getPhScheme().pyFont && pyFontInstalled() && $("pyfont").value.indexOf(PY_FONT_OPT_KEY) === -1) {
         selectPyFontOption();
       }
       // 字体就绪后重新分页：首帧排版时字体可能尚未加载，行高会变化
@@ -4294,6 +4808,7 @@ function applyI18n() {
     syncZywebFmt();
     syncWgsCtl();
     syncCyrCtl();
+    syncInkerOption();
     autoSwitchPyFont(sch.id);
   }
   /* 西里尔转写的声调选项只在选中该方案时出现 */
@@ -4817,7 +5332,7 @@ function applyI18n() {
           if (!overrides[a1] && !defaults[a1]) need = true;
           rs.push(overrides[a1] || defaults[a1] || "");
         }
-        if (need) {
+        if (need && !jyutOn()) {   // 粤语版：词典没收录的字宁可留空，也不能拿普通话读音顶上
           var readings = null;
           try { readings = lib.pinyin(tk, { type: "array", toneSandhi: toneSandhi }); } catch (e) { readings = null; }
           for (i = 0; i < tk.length; i++) if (!rs[i]) rs[i] = (readings && readings[i]) || "";
@@ -4995,8 +5510,16 @@ function applyI18n() {
   var SAMPLE_TEXT = "小蚂蚁搬家（示例文章）\n天要下雨了，小蚂蚁们排着长长的队伍往高处搬家。\n一只小蚂蚁背着一粒大豆子，走得慢极了。小蚂蚁可儿说：“大家不要着急，一步一步走，就一定能到家。”\n雨点落下来的时候，它们正好钻进了新家。可儿的妈妈端出一小盘点心，让大家歇一会儿，小蚂蚁们高兴地喊：“我们成功啦”";
   // 繁体示例：台湾用字习惯（著/牠/揹/「」引号）
   var SAMPLE_TW = "小螞蟻搬家（示例文章）\n天要下雨了，小螞蟻們排著長長的隊伍往高處搬家。\n一隻小螞蟻揹著一粒大豆子，走得慢極了。小螞蟻可兒說：「大家不要著急，一步一步走，就一定能到家。」\n雨點落下來的時候，牠們正好鑽進了新家。可兒的媽媽端出一小盤點心，讓大家歇一會兒，小螞蟻們高興地喊：「我們成功啦」";
+  /* 粤拼版示例：写给粤语母语的孩子，所以正文本身就是粤语口语，不是「普通话文章」。
+     两地用词分开——广东说「手机 / 雪柜」，香港说「電話 / 雪櫃」，
+     同一个故事两种写法，正好让用户第一眼看到自己熟悉的说法。 */
+  var SAMPLE_JYUT_CN = "小蚂蚁搬家（示例文章）\n天要落雨啦，蚁仔们排住长长嘅队伍，准备搬去高处。\n有只蚁仔孭住一粒大豆，行得好慢。\n蚁仔可儿话：「大家唔好急，一步一步行，实会到屋企。」\n雨点落嚟嘅时候，佢哋啱啱钻咗入新屋。\n妈妈从雪柜攞出一小盘点心，用手机播住儿歌，叫大家唞一阵。\n蚁仔们好开心噉嗌：「我哋成功啦！」";
+  var SAMPLE_JYUT_HK = "小螞蟻搬家（示例文章）\n天要落雨喇，蟻仔們排住長長嘅隊伍，準備搬去高處。\n有隻蟻仔孭住一粒大豆，行得好慢。\n蟻仔可兒話：「大家唔好急，一步一步行，實會到屋企。」\n雨點落嚟嘅時候，佢哋啱啱鑽咗入新屋。\n媽媽從雪櫃攞出一小盤點心，用電話播住兒歌，叫大家唞一陣。\n蟻仔們好開心噉嗌：「我哋成功啦！」";
   // 示例文章随界面语言：繁体界面填繁体版，简体 / 英文界面填简体版
-  function sampleForLang() { return (window.__LANG === "tw") ? SAMPLE_TW : SAMPLE_TEXT; }
+  function sampleForLang() {
+    if (jyutOn()) return (window.__LANG === "tw") ? SAMPLE_JYUT_HK : SAMPLE_JYUT_CN;
+    return (window.__LANG === "tw") ? SAMPLE_TW : SAMPLE_TEXT;
+  }
   // 音标方案下拉框：先按注册表生成选项，后面恢复保存样式时才能正确选中
   renderPhOptions();
   syncWgsButtons();
@@ -5004,6 +5527,37 @@ function applyI18n() {
   syncCyrCtl();
   // 「保存样式」的样式在首次渲染前应用
   applySavedStyle();
+  /* 粤拼版：关掉与普通话读音体系绑定的控件。留着不是「多余」而是会误导——
+     用户在「音标方案」里挑汉语拼音、在「一/不变调」里切来切去，而粤拼根本不走这条路。 */
+  if (window.__VARIANT && window.__VARIANT.jyut) {
+    ["seg-ctl", "ph-ctl", "zydir-ctl", "std-ctl"].forEach(function (id) {
+      var el = $(id);
+      if (el) el.style.display = "none";
+    });
+    /* 音标字体：粤拼用内置 Andika。印氪先生是「汉语拼音」专用字体（单层 a + 调号），
+       对 ceon1 这种拼式没有意义，所以既不默认选它、也不在字体就绪后自动切过去。 */
+    pyFontUserSet = true;
+    if (!savedPyFontChosen) selectBuiltinPyFont();
+    syncInkerOption();
+    ["l.hi", "l.ts", "l.erhua", "l.engine"].forEach(function (k) {
+      var lab = document.querySelector('[data-i18n="' + k + '"]');
+      if (lab && lab.closest) {
+        var ctl = lab.closest(".ctl");
+        if (ctl) ctl.style.display = "none";
+      }
+    });
+    // 说明条首次进入展开一次，点「知道了」记住
+    var jn = $("jyut-note");
+    if (jn) {
+      var jnSeen = false;
+      try { jnSeen = localStorage.getItem("jyutNoteSeen") === "1"; } catch (eJn) { jnSeen = false; }
+      if (!jnSeen) jn.hidden = false;
+      $("jyut-note-ok").addEventListener("click", function () {
+        jn.hidden = true;
+        try { localStorage.setItem("jyutNoteSeen", "1"); } catch (eJn2) {}
+      });
+    }
+  }
   // 变体默认态（zhuyin 版）：无保存设置时同步注音按钮/正文类，并触发台湾读音差异表懒加载
   var __hasSavedStyle = false;
   try { __hasSavedStyle = !!localStorage.getItem(STYLE_KEY); } catch (eVStyle) { __hasSavedStyle = false; }
@@ -5011,7 +5565,10 @@ function applyI18n() {
     syncPhScheme(phonetic);
     if (twStd) setTwStd(true);
   }
-  renderView();
+  /* 粤拼版的词典与 OpenCC 都是异步解压的（合计约 2.5 MB），首次渲染必须等两者就绪：
+     词典没就绪 → 退回普通话引擎；OpenCC 没就绪 → 简体字查不到音（覆盖率从 99.8% 掉到 69%）。 */
+  if (jyutOn()) Promise.all([ensureJyutDict(), ensureOpenCC()]).then(function () { renderView(); });
+  else renderView();
   // 供自动化测试使用：列出 / 切换已注册的音标方案（UI 按钮在接入新方案时按注册表生成）
   window.__phScheme = {
     list: function () { return Object.keys(PH_SCHEMES); },
@@ -5081,7 +5638,7 @@ function applyI18n() {
   var rdMicBtn = $("rd-mic"), rdMicLabel = $("rd-mic-label"), rdToast = $("rd-toast");
   var rdSentences = [], rdKnownText = "", rdKnownFp = "", rdIndex = 0, rdChar = -1;
   var rdPlaying = false, rdPaused = false, rdToken = 0, rdSegs = [];
-  var rdRate = 1, rdVoice = null, rdVoices = [];
+  var rdRate = 1, rdVoice = null, rdVoices = [], rdJyutWarned = false;
   var rdPageRanges = [];
   var rdItemCache = null, rdCurEls = [], rdCurCharEl = null, rdLastHiIndex = -1;
   var rdMicOn = false, rdRecog = null;
@@ -5343,7 +5900,19 @@ function applyI18n() {
   function rdTtsAvailable() {
     return !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
   }
+  /* 粤拼版读的是粤语：必须挑粤语语音（zh-HK / yue），不能用国语语音代读——
+     汉字相同但读音完全不同，用国语读「春」是 chūn，而标注写的是 ceon1，等于教错。 */
+  function isJyutVoice(v) {
+    if (!v) return false;
+    return /zh[-_]hk|yue|cantonese|hong ?kong|粵語|粤语|廣東話|广东话/i
+      .test(String(v.lang || "") + " " + String(v.name || ""));
+  }
+  function jyutVoiceFound() {
+    for (var i = 0; i < rdVoices.length; i++) if (isJyutVoice(rdVoices[i])) return true;
+    return false;
+  }
   function rdTtsLang() {
+    if (jyutOn()) return "zh-HK";
     if (twStd || window.__LANG === "tw") return "zh-TW";
     return "zh-CN";
   }
@@ -5353,20 +5922,25 @@ function applyI18n() {
     try { all = window.speechSynthesis.getVoices() || []; } catch (e) { all = []; }
     var zh = [], i;
     for (i = 0; i < all.length; i++) {
-      if (/(^|\b)zh|cmn|chinese|中文|國語|普通话/i.test(String(all[i].lang || "") + " " + String(all[i].name || ""))) zh.push(all[i]);
+      if (/(^|\b)zh|cmn|yue|chinese|cantonese|中文|國語|普通话|粵語|粤语/i
+        .test(String(all[i].lang || "") + " " + String(all[i].name || ""))) zh.push(all[i]);
     }
     rdVoices = zh.length ? zh : all;
     var prefs = rdLoadPrefs(), savedName = prefs && prefs.voice ? prefs.voice : "";
     rdVoiceSel.innerHTML = '<option value="">' + esc(i18nT("rd.voiceDefault", "默认音色")) + "</option>";
-    var want = rdTtsLang().replace(/_/g, "-").toLowerCase(), autoPick = -1;
+    var want = rdTtsLang().replace(/_/g, "-").toLowerCase(), autoPick = -1, byJyut = -1, byLang = -1;
     for (i = 0; i < rdVoices.length; i++) {
       var v = rdVoices[i], opt = document.createElement("option");
       opt.value = String(i);
       opt.textContent = String(v.name || "Voice") + (v.lang ? " (" + v.lang + ")" : "");
       if (savedName && v.name === savedName) autoPick = i;
-      else if (!savedName && autoPick < 0 && String(v.lang || "").replace(/_/g, "-").toLowerCase().indexOf(want) === 0) autoPick = i;
+      else if (!savedName) {
+        if (jyutOn() && byJyut < 0 && isJyutVoice(v)) byJyut = i;
+        if (byLang < 0 && String(v.lang || "").replace(/_/g, "-").toLowerCase().indexOf(want) === 0) byLang = i;
+      }
       rdVoiceSel.appendChild(opt);
     }
+    if (!savedName && autoPick < 0) autoPick = (jyutOn() && byJyut >= 0) ? byJyut : byLang;
     if (autoPick >= 0) { rdVoiceSel.value = String(autoPick); rdVoice = rdVoices[autoPick]; }
     else { rdVoiceSel.value = ""; rdVoice = null; }
   }
@@ -5452,6 +6026,12 @@ function applyI18n() {
     if (!rdSentences.length) return;
     if (rdMicOn) rdStopMic();
     if (!rdTtsAvailable()) { rdToastMsg(i18nT("rd.noTts", "当前浏览器不支持语音朗读，可继续使用高亮跟读。")); return; }
+    /* 粤拼版读的是粤语。设备里没有粤语语音时会退回国语语音，
+       「春」会被读成 chūn 而标注写的是 ceon1——先提醒一次，别让孩子照着错音记。 */
+    if (jyutOn() && !rdJyutWarned && rdVoices.length && !jyutVoiceFound() && !(rdVoice && isJyutVoice(rdVoice))) {
+      rdJyutWarned = true;
+      rdToastMsg(i18nT("rd.noJyutVoice", "这台设备没有粤语语音，朗读会改用其他语音代读，读音可能和上面标的对不上。可在系统设置里添加「粤语（香港）」语音后再试。"));
+    }
     if (rdPlaying && !rdPaused) {
       try { window.speechSynthesis.pause(); } catch (e) {}
       rdPaused = true; rdUpdateUI(); return;
