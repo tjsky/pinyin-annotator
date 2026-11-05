@@ -96,10 +96,10 @@
 
 - **線上使用：**[拼音注音小助手（海外使用者推薦）](https://tjsky.github.io/pinyin-annotator/) | [拼音注音小助手（中國大陸使用者推薦）](https://pinyin-annotator.tjsky.net/)
 
-  首次造訪會展示四個版本的對比卡片，選一個進入即可；選過之後瀏覽器會記住，下次自動進入上次用的版本（也可在頁面換版本）；
+  首次造訪會展示五個版本的對比卡片，選一個進入即可；選過之後瀏覽器會記住，下次自動進入上次用的版本（也可在頁面換版本）；
 - **本機使用**：
   1. 前往 [Releases](https://github.com/tjsky/pinyin-annotator/releases) 下載最新版（Assets 裡的 `pinyin-annotator-vX.Y.Z.zip`）；
-  2. 解壓後雙擊 `index.html`（版本選擇頁）——完成，不需要安裝任何東西；首次造訪會展示四個版本的對比卡片，選一個進入即可，瀏覽器會記住選擇、下次自動進入（也可在頁面換版本；本機開啟舊入口 `main.html` 會提示改用 `pinyin.html`）；
+  2. 解壓後雙擊 `index.html`（版本選擇頁）——完成，不需要安裝任何東西；首次造訪會展示五個版本的對比卡片，選一個進入即可，瀏覽器會記住選擇、下次自動進入（也可在頁面換版本；本機開啟舊入口 `main.html` 會提示改用 `pinyin.html`）；
   3. 貼上文章 → 選音標、調字級與間距 → 勾「易錯字」過一遍 → 列印 / 匯出 PDF，或複製進 Word；也可以點「閱讀模式」直接遞給孩子讀。
 
 | 版本          | 檔案            | 體積       | 與其他版本的差別                                                        |
@@ -109,14 +109,21 @@
 | **主線版**（推薦） | `pinyin.html` | 約 1.4 MB | 內建 3 萬常用詞，可按詞連排；線上示範預設進入這個版本                                    |
 | **完整詞典版**   | `plus.html`   | 約 7.2 MB | 詞典擴到 33.7 萬詞（成語、人名地名也能整詞排）+ OpenCC 簡 ⇄ 繁                          |
 | **注音版**     | `zhuyin.html` | 約 2.3 MB | 預設繁體介面 + 注音符號 + 台灣讀音 + OpenCC 簡 ⇄ 繁 + 注音芫荽 IVS 讀音表              |
+| **粵語版**     | `jyutping.html` | 約 3.6 MB | 繁體介面 + 粵拼（Jyutping）+ 9.4 萬粵語詞表 + OpenCC 簡體 / 香港 / 台灣用字           |
 
-四個版本的介面、排版、列印、閱讀模式完全一致，只差詞典大小與簡繁轉換。
+五個版本的操作、排版、列印、閱讀模式完全一致，只差讀音體系與詞典大小。
 
 全部版本均支援 **簡體 / 繁體 / English 介面**、**九種音標方案**（漢語拼音 / 注音符號 / 通用拼音 / 耶魯拼音 / 威妥瑪嚴式、簡式 / 注音二式 / 國語羅馬字 / 西里爾轉寫），以及 **一/不變調**（標變調 / 標本調）。拉丁字母方案均可切「拼音位置」（**上方**預設 / **右側**）；注音模式提供「注音方向」切換：**橫排**（符號橫寫標在字上方，調號標在末符上方）與**直排**（台灣直式教科書風格，符號自上而下豎排、標註在漢字右側，調號標在末符右方）；切換後 A4 預覽自動重新分頁，列印 / 匯出 PDF 所見即所印。
 
 「更多設定 → 讀音標準」可切換 **普通話讀音 / 台灣讀音**（拼音與注音模式都生效）：普通話讀音以《現代漢語詞典》為準（資料來源 [zh-lx/pinyin-pro](https://github.com/zh-lx/pinyin-pro)）；台灣讀音以《重編國語辭典修訂本》為準（資料來源 [g0v 萌典](https://github.com/g0v/moedict-data)），涵蓋約 1.5 萬詞、200 字（簡繁字形均可命中，如垃圾 ㄌㄜˋㄙㄜˋ、期待 ㄑ丨ˊ、攜帶 ㄒ丨、血液 ㄒ丨ㄝˇ、混淆 ㄏㄨㄣˋ丨ㄠˊ），詞典文本授權為 CC BY-ND 3.0 臺灣（授權條款要求保留的原始署名：教育部）。
 
 `zhuyin.html` 與 `plus.html` 內嵌 [OpenCC（nk2028/opencc-js）](https://github.com/nk2028/opencc-js)（Apache-2.0），輸入區提供「轉為簡體 / 轉為繁體」一鍵轉換；「更多設定 → 繁簡轉換」可選 **簡體 ⇆ 標準繁體 / 台灣繁體 / 香港繁體**，配合「同時轉換常用詞彙」勾選（台灣 / 香港繁體時可用）連地區用詞一併轉換；`zhuyin.html` 首次開啟即為繁體介面、注音符號與台灣讀音（可隨時切換）。
+
+**粵語版（`jyutping.html`）** 是給粵語母語的孩子標讀音用的：每個字標出它在粵語裡的讀法（粵拼 Jyutping，如「春」ceon1）。調號依香港語言學學會（LSHK）方案用基線數字，另以加粗與暖色標出——只變色在黑白列印時會灰化成一個中間調，靠字重才分得清。
+
+它不是翻譯工具：只按字給出讀音，不改變句子本身的用詞，也不保證這句話在粵語裡會這樣說。輸入簡體時會先用 OpenCC 轉成繁體再查音（粵語字表是繁體字表），**顯示的仍是原來的簡體**。
+
+「更多設定 → 繁簡轉換」可選 **簡體 / 台灣繁體 / 香港繁體**。香港的**詞彙**轉換目前只覆蓋幾十條（多為人名地名），「計程車」「超級市場」這類日常詞只會轉換用字、不會換成香港說法——這是 OpenCC 上游的資料現狀。香港用字（説 / 裏 / 衞 / 峯）與台灣用字（說 / 裡 / 衛 / 峰）都會正確產出。
 
 > 建議使用 Chrome / Edge 等現代瀏覽器，手機 / 平板同樣可用：介面會自動改成上下排列，翻頁變為連續滑動；手機上裝不了本機字型，用內建的 Andika 拼音字型即可，閱讀模式的朗讀與跟讀照常可用。全部功能在本機執行、文章永不上傳；連網僅用於可選的拼音引擎更新檢查與線上字型載入（不選線上字型即完全離線）。
 >
@@ -129,7 +136,7 @@
 | 分支 / 位置 | 內容 | 用途 |
 | --- | --- | --- |
 | `main` | 原始碼：`template.html` + `build.js` + 建置依賴（fonts / vendor / seg-dict） | 開發與 PR，**不含工具成品** |
-| `dist` | CI 自動建置的工具成品：`index.html` + `main.html` + `zhuyin.css` + 四個版本頁 + `.nojekyll` | **三平台線上託管的生產分支**，由 CI 自動建置覆蓋 |
+| `dist` | CI 自動建置的工具成品：`index.html` + `main.html` + `zhuyin.css` + 五個版本頁 + `.nojekyll` | **三平台線上託管的生產分支**，由 CI 自動建置覆蓋 |
 | Releases | 每個版本 tag 的成品 zip | 本機使用下載 |
 
 ### Fork 後自架部署（三平台任選）
@@ -153,7 +160,7 @@ cd pinyin-annotator
 node build.js
 ```
 
-建置會在倉庫根目錄產生 `mini.html` / `pinyin.html` / `plus.html` / `zhuyin.html` 四個單檔成品（`index.html`、`main.html`、`zhuyin.css` 為手工維護的原始檔，不參與建置）。
+建置會在倉庫根目錄產生 `mini.html` / `pinyin.html` / `plus.html` / `zhuyin.html` 五個單檔成品（`index.html`、`main.html`、`zhuyin.css` 為手工維護的原始檔，不參與建置）。
 
 - **建置版本號**：`build.js` 內 `BUILD_VERSION` 常數隨發版遞增，注入為每個成品 head 內的隱藏註解 `<!--build:x.y.z-->`，用於線上部署核對；
 - **可重現性**：相同 Node 版本下成品應逐位元組一致；換系統或換 Node 版本時，zlib 壓縮結果可能不同，成品雜湊會與倉庫裡的不一致（詞典解壓後完全一致，功能沒有差異）。CI 固定使用 Node 22.22.2；
@@ -198,13 +205,15 @@ node build.js
 
 ## 技術棧
 
-- 純原生 HTML / CSS / JavaScript；原始碼為 `template.html` 模板 + `build.js` 建置腳本，產出四個單檔成品（成品零依賴，可直接雙擊開啟）
+- 純原生 HTML / CSS / JavaScript；原始碼為 `template.html` 模板 + `build.js` 建置腳本，產出五個單檔成品（成品零依賴，可直接雙擊開啟）
 - 拼音引擎：[pinyin-pro](https://github.com/zh-lx/pinyin-pro)（內嵌 + 可線上更新）
 - 分詞詞典：取自 [@pinyin-pro/data](https://www.npmjs.com/package/@pinyin-pro/data) modern（gzip 內嵌，啟動時解壓註冊）
 - 繁簡轉換引擎：[nk2028/opencc-js](https://github.com/nk2028/opencc-js)（gzip+base64 內嵌，懶解壓）
 - 音標轉換層：拼音 → 通用拼音 / 耶魯 / 威妥瑪 / 注音二式 / 國語羅馬字 / 西里爾的轉寫規則，依各方案的官方規範自行實作（[kfcd/pinyin](https://github.com/kfcd/pinyin) 對照表只用於校驗，不引入其程式碼）
 - 台灣讀音差異表：[g0v/萌典](https://github.com/g0v/moedict-data)（建置期產生，內嵌）
 - 注音 IVS 讀音表：[ButTaiwan/bpmfvs](https://github.com/ButTaiwan/bpmfvs)（建置期產生，僅注入注音版內嵌）
+- 粵語字表與詞表：[CanCLID/rime-cantonese-upstream](https://github.com/CanCLID/rime-cantonese-upstream)（CC-BY-4.0，建置期產生，僅注入粵語版內嵌）
+- 粵拼方案校驗基準：[LSHK jyutping-table](https://github.com/lshk-org/jyutping-table)（CC-BY-4.0，香港語言學學會粵語拼音方案）
 - 感謝 [zh-lx](https://github.com/zh-lx)、[nk2028](https://github.com/nk2028/opencc-js)、[g0v 萌典](https://github.com/g0v/moedict-data)、[ButTaiwan](https://github.com/ButTaiwan) 等開源專案與作者。
 
 ## 字型版權說明

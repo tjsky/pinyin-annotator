@@ -96,27 +96,34 @@ Tone numbers can be switched off for Wade-Giles plain and Cyrillic. Latin-script
 
 - **Online:** [Pinyin Annotator (recommended outside mainland China)](https://tjsky.github.io/pinyin-annotator/) | [Pinyin Annotator (recommended in mainland China)](https://pinyin-annotator.tjsky.net/)
 
-  The first visit shows a comparison of the four builds; pick one and you are in. The choice is remembered, so next time you land straight in it (you can switch builds from the page at any time).
+  The first visit shows a comparison of the five builds; pick one and you are in. The choice is remembered, so next time you land straight in it (you can switch builds from the page at any time).
 - **Locally:**
   1. Download the latest release from [Releases](https://github.com/tjsky/pinyin-annotator/releases) (`pinyin-annotator-vX.Y.Z.zip` under Assets);
-  2. Unzip and double-click `index.html` (the version chooser). That's it — nothing to install. The first visit shows the four builds, the choice is remembered, and you can switch later from the page (opening the old `main.html` locally points you to `pinyin.html`);
+  2. Unzip and double-click `index.html` (the version chooser). That's it — nothing to install. The first visit shows the five builds, the choice is remembered, and you can switch later from the page (opening the old `main.html` locally points you to `pinyin.html`);
   3. Paste a text → choose a notation and adjust size and spacing → tick "Tricky characters" for a quick check → print / export PDF, or copy into Word. Or hit "Read mode" and hand it straight to the child.
 
 | Build | File | Size | How it differs |
 | --- | --- | --- | --- |
-| **Version chooser** | `index.html` | ~20 KB | Simplified / Traditional / English, four-build comparison, remembers your choice, download progress for the full dictionary build |
+| **Version chooser** | `index.html` | ~20 KB | Simplified / Traditional / English, five-build comparison, remembers your choice, download progress for the full dictionary build |
 | **Lite** | `mini.html` | ~1 MB | No word dictionary, per-character only; **everything else is identical** |
 | **Main** (recommended) | `pinyin.html` | ~1.4 MB | 30k-word dictionary, word grouping; the default for the online demo |
 | **Full dictionary** | `plus.html` | ~7.2 MB | 337k-word dictionary (idioms and proper names group as whole words) + OpenCC conversion |
 | **Zhuyin** | `zhuyin.html` | ~2.3 MB | Traditional UI by default, zhuyin symbols, Taiwan readings, OpenCC conversion, BpmfIansui IVS table |
+| **Cantonese** | `jyutping.html` | ~3.6 MB | Traditional UI, Jyutping readings, 94k-word Cantonese lexicon, OpenCC Simplified / HK / Taiwan characters |
 
-All four builds share the same interface, layout, printing and read mode — only the dictionary size and the simplified/traditional conversion differ.
+All five builds share the same controls, layout, printing and read mode — only the reading system and dictionary size differ.
 
 Every build supports **Simplified / Traditional / English**, all **nine notation systems** (Hanyu Pinyin / Zhuyin / Tongyong / Yale / Wade-Giles full and plain / MPS2 / Gwoyeu Romatzyh / Cyrillic), and **一/不 sandhi** (sandhi form or citation tone). Latin-script systems can put the annotation **above** (default) or to the **right**; zhuyin can be set **horizontally** (symbols written horizontally above the character, tone mark above the last symbol) or **vertically** (Taiwan's upright textbook style, symbols stacked top to bottom to the right of the character, tone mark to the right of the last symbol). The A4 preview re-paginates after a switch, and print / PDF matches it exactly.
 
 "More settings → Reading standard" switches between **Mainland (Putonghua) readings**, following *现代汉语词典* (data from [zh-lx/pinyin-pro](https://github.com/zh-lx/pinyin-pro)), and **Taiwan readings**, following the *重編國語辭典修訂本* (data from [g0v Moedict](https://github.com/g0v/moedict-data)) — about 15,000 words and 200 characters, matched in either script (垃圾 ㄌㄜˋㄙㄜˋ, 期待 ㄑ丨ˊ, 攜帶 ㄒ丨, 血液 ㄒ丨ㄝˇ, 混淆 ㄏㄨㄣˋ丨ㄠˊ). The dictionary text is licensed CC BY-ND 3.0 Taiwan, and the attribution it requires is: 教育部 (Ministry of Education, R.O.C.).
 
 `zhuyin.html` and `plus.html` embed [OpenCC (nk2028/opencc-js)](https://github.com/nk2028/opencc-js) (Apache-2.0), and the input panel offers one-click "Convert to Simplified / Convert to Traditional". "More settings → Conversion" offers **Simplified ⇆ Standard / Taiwan / Hong Kong Traditional**, with "Convert common vocabulary" available for Taiwan and Hong Kong. `zhuyin.html` opens in Traditional Chinese with zhuyin and Taiwan readings (switchable at any time).
+
+**The Cantonese build (`jyutping.html`)** gives Cantonese-speaking children the reading of each character (Jyutping, e.g. 春 ceon1). Tone numbers stay on the baseline as the Linguistic Society of Hong Kong specifies; they are also set in bold and a warm colour, because colour alone would fade into a mid-grey in black-and-white printing — only the weight survives.
+
+It is not a translator: it only shows how each character is read, without changing the wording of the sentence and without promising that a Cantonese speaker would say it that way. Simplified input is converted to Traditional with OpenCC for lookup (the Cantonese lexicon is Traditional), but **the text you see stays as you typed it**.
+
+"More settings → Conversion" offers **Simplified / Taiwan Traditional / Hong Kong Traditional**. Hong Kong *wording* conversion currently covers only a few dozen entries (mostly names of people and places), so everyday words are converted character by character rather than into Hong Kong usage — that is the state of OpenCC's upstream data. Both Hong Kong forms (説 / 裏 / 衞 / 峯) and Taiwan forms (說 / 裡 / 衛 / 峰) come out correctly.
 
 > Chrome or Edge is recommended. Phones and tablets work too: the layout stacks vertically and paging becomes continuous scrolling. Fonts can't be installed on a phone, so just use the embedded Andika; read-aloud and follow-along work as usual. Everything runs locally and your text is never uploaded; the network is used only for the optional engine update check and for online fonts (choose none and it is fully offline).
 >
@@ -129,7 +136,7 @@ This repository keeps source and build output apart:
 | Branch / location | Contents | Purpose |
 | --- | --- | --- |
 | `main` | Source: `template.html` + `build.js` + build inputs (fonts / vendor / seg-dict) | Development and PRs, **no build output** |
-| `dist` | CI-built output: `index.html` + `main.html` + `zhuyin.css` + the four build pages + `.nojekyll` | **Production branch for all three hosts**, rebuilt by CI |
+| `dist` | CI-built output: `index.html` + `main.html` + `zhuyin.css` + the five build pages + `.nojekyll` | **Production branch for all three hosts**, rebuilt by CI |
 | Releases | A zip of the build output per tag | Downloads |
 
 ### Deploy your own fork (any of the three)
@@ -153,7 +160,7 @@ cd pinyin-annotator
 node build.js
 ```
 
-This produces the four single-file builds — `mini.html`, `pinyin.html`, `plus.html`, `zhuyin.html`. (`index.html`, `main.html` and `zhuyin.css` are hand-maintained sources and are not built.)
+This produces the five single-file builds — `mini.html`, `pinyin.html`, `plus.html`, `zhuyin.html`, `jyutping.html`. (`index.html`, `main.html` and `zhuyin.css` are hand-maintained sources and are not built.)
 
 - **Build version**: the `BUILD_VERSION` constant in `build.js` is bumped with each release and injected as a hidden `<!--build:x.y.z-->` comment in each build's head, so a deployed page can be checked.
 - **Reproducibility**: with the same Node version the output should be byte-identical. Across systems or Node versions zlib may compress differently, so the hashes can differ from the committed ones (the dictionary decompresses identically, and behaviour is unaffected). CI pins Node 22.22.2.
@@ -205,6 +212,8 @@ The pinyin engine is about 99.8% accurate, but **100% is not promised**: polypho
 - Transliteration layer: the pinyin → Tongyong / Yale / Wade-Giles / MPS2 / Gwoyeu Romatzyh / Cyrillic rules are implemented here from each system's official specification. The [kfcd/pinyin](https://github.com/kfcd/pinyin) table is used for validation only; none of its code is included.
 - Taiwan reading differences: [g0v Moedict](https://github.com/g0v/moedict-data) (generated at build time, embedded).
 - Zhuyin IVS table: [ButTaiwan/bpmfvs](https://github.com/ButTaiwan/bpmfvs) (generated at build time, embedded in the zhuyin build only).
+- Cantonese characters and words: [CanCLID/rime-cantonese-upstream](https://github.com/CanCLID/rime-cantonese-upstream) (CC-BY-4.0, generated at build time, embedded in the Cantonese build only).
+- Jyutping scheme reference: [LSHK jyutping-table](https://github.com/lshk-org/jyutping-table) (CC-BY-4.0, Linguistic Society of Hong Kong).
 - Thanks to [zh-lx](https://github.com/zh-lx), [nk2028](https://github.com/nk2028/opencc-js), [g0v Moedict](https://github.com/g0v/moedict-data), [ButTaiwan](https://github.com/ButTaiwan) and the other projects this one builds on.
 
 ## Fonts and licences

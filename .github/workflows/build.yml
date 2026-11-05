@@ -1,7 +1,7 @@
 name: Build & Deploy
 
 # main = 源码真相源（template.html + 构建依赖）。
-# push main → 构建四个发布页 → 机器托管 force-push 到 dist 分支（GitHub Pages / Cloudflare Pages / Vercel 的生产分支，禁止手工编辑）。
+# push main → 构建五个发布页 → 机器托管 force-push 到 dist 分支（GitHub Pages / Cloudflare Pages / Vercel 的生产分支，禁止手工编辑）。
 # push tag v* → 同样构建 → 打包 zip 发布到 GitHub Releases。
 
 on:
@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir -p dist
           cp index.html main.html zhuyin.css dist/
-          cp mini.html pinyin.html plus.html zhuyin.html dist/
+          cp mini.html pinyin.html plus.html zhuyin.html jyutping.html dist/
           cp .github/dist-readme.md dist/README.md
           touch dist/.nojekyll
 
@@ -81,7 +81,7 @@ jobs:
         run: |
           zip -q -r "pinyin-annotator-${GITHUB_REF_NAME}.zip" \
             index.html main.html zhuyin.css README.md README.zh-TW.md README.en.md \
-            mini.html pinyin.html plus.html zhuyin.html
+            mini.html pinyin.html plus.html zhuyin.html jyutping.html
 
       # 发版说明优先用仓库内的三语模板（.github/release-notes.md），
       # 缺失时回退为 GitHub 自动生成的 changelog。
