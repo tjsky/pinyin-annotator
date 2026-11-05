@@ -15,7 +15,7 @@
 //  - /*__VARIANT__*/null  构建变体默认值 JSON（zhuyin: 繁体界面/注音/台湾读音/opencc）
 // 构建版本号：手工维护，发版时随 tag 递增；注入为每个产物 head 内的隐藏注释 <!--build:x.y.z>，
 // 用于部署验证——curl 任一线上页面 grep 该串即可确认平台是否在服务最新 dist（固定常量保证产物逐字节可复现）。
-const BUILD_VERSION = "v1.7.2";
+const BUILD_VERSION = "v1.8.0";
 //  - <!--__SEO_META__-->  各版本 SEO meta（canonical / og 标签，按版本注入）
 const fs = require("fs");
 const path = require("path");

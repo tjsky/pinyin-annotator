@@ -7,15 +7,27 @@
 
 ## 简体中文
 
-**访问统计换成自己的了**：GitHub Pages 的访问统计做得太烂——只统计仓库页面，跟站点访问根本没关系，所以改为接自己的统计。它只数页面访问量，不用 Cookie、不读取也不上传你贴的文章，也不记录能追到个人的信息。从 Release 下载的离线包、以及 fork 后自建的版本，都不带这段代码。
+**新增粤语版**：给粤语母语的孩子标读音用的第五个版本（`jyutping.html`）。每个字标出它在粤语里的读法（粤拼 Jyutping，如「春」ceon1），调号用香港语言学学会的基线数字，另加粗与暖色——只变色在黑白打印时会灰掉，靠字重才分得清。文字按粤语词整体排列，一个词不会被拆到两行。
+
+**界面和朗读也跟着变**：简体界面的说明与示例文章用广东说法，繁体界面用香港说法与香港用字（例如「裏」而不是「裡」）。阅读模式会自己挑粤语语音，不会拿国语代读；设备里没装粤语语音时会先提醒你。
+
+**它不是翻译工具**：只按字给出读音，不改变句子本身的用词，也不保证这句话在粤语里会这样说。「更多设置 → 繁简转换」可以把简体转成香港或台湾用字，但香港的**词汇**转换目前只有几十条（多是人名地名），「出租车」「土豆」只会转字，不会变成「的士」「薯仔」——这是 OpenCC 上游的数据现状，遇到没覆盖的词欢迎向该项目反馈。
 
 ## 繁體中文
 
-**訪問統計換成自己的了**：GitHub Pages 的訪問統計做得太爛——只統計倉庫頁面，跟站點訪問根本沒關係，所以改為接自己的統計。它只數頁面訪問量，不用 Cookie、不讀取也不上傳你貼的文章，也不記錄能追到個人的資訊。從 Release 下載的離線包、以及 fork 後自建的版本，都不帶這段程式碼。
+**新增粵語版**：給粵語母語的孩子標讀音用的第五個版本（`jyutping.html`）。每個字標出它在粵語裡的讀法（粵拼 Jyutping，如「春」ceon1），調號用香港語言學學會的基線數字，另加粗與暖色——只變色在黑白列印時會灰掉，靠字重才分得清。文字按粵語詞整體排列，一個詞不會被拆到兩行。
+
+**介面與朗讀也跟著變**：簡體介面的說明與範例文章用廣東說法，繁體介面用香港說法與香港用字（例如「裏」而不是「裡」）。閱讀模式會自己挑粵語語音，不會拿國語代讀；裝置裡沒裝粵語語音時會先提醒你。
+
+**它不是翻譯工具**：只按字給出讀音，不改變句子本身的用詞，也不保證這句話在粵語裡會這樣說。「更多設定 → 繁簡轉換」可以把簡體轉成香港或台灣用字，但香港的**詞彙**轉換目前只有幾十條（多是人名地名），「出租車」「土豆」只會轉字，不會變成「的士」「薯仔」——這是 OpenCC 上游的資料現狀，遇到沒覆蓋的詞歡迎向該專案回饋。
 
 ## English
 
-**Traffic stats now come from a self-hosted counter.** GitHub Pages' built-in traffic page is useless for a website — it only counts views of the repository, not the pages people actually visit — so the site now reports to its own counter. It only counts page views: no cookies, it never reads or uploads the text you paste, and nothing it stores can be traced back to a person. The offline zip downloaded from Releases, and any self-hosted copy after forking, contain none of that code.
+**A Cantonese build is here.** The fifth build (`jyutping.html`) gives Cantonese-speaking children the reading of every character (Jyutping, e.g. 春 ceon1). Tone numbers stay on the baseline as the Linguistic Society of Hong Kong specifies, and are also set in bold and a warm colour — colour alone fades in black-and-white printing, only the weight survives. Words stay together, so a word is never split across two lines.
+
+**The interface and the voice follow.** The Simplified interface speaks in Guangdong terms and the Traditional one in Hong Kong terms and Hong Kong characters (「裏」 rather than 「裡」). Read-aloud picks a Cantonese voice instead of falling back to Mandarin, and tells you once if the device has none.
+
+**It is not a translator.** It only shows how each character is read, without changing the wording and without promising a Cantonese speaker would say it that way. "More settings → Conversion" can turn Simplified into Hong Kong or Taiwan characters, but Hong Kong *wording* conversion covers only a few dozen entries — 出租車 and 土豆 change characters, not into 的士 or 薯仔. That is the state of OpenCC's upstream data; uncovered words are worth reporting there.
 
 ---
 

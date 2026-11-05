@@ -109,7 +109,7 @@ Tone numbers can be switched off for Wade-Giles plain and Cyrillic. Latin-script
 | **Main** (recommended) | `pinyin.html` | ~1.4 MB | 30k-word dictionary, word grouping; the default for the online demo |
 | **Full dictionary** | `plus.html` | ~7.2 MB | 337k-word dictionary (idioms and proper names group as whole words) + OpenCC conversion |
 | **Zhuyin** | `zhuyin.html` | ~2.3 MB | Traditional UI by default, zhuyin symbols, Taiwan readings, OpenCC conversion, BpmfIansui IVS table |
-| **Cantonese** | `jyutping.html` | ~3.6 MB | Traditional UI, Jyutping readings, 94k-word Cantonese lexicon, OpenCC Simplified / HK / Taiwan characters |
+| **Cantonese** | `jyutping.html` | ~3.6 MB | Simplified / HK Traditional UI, Jyutping readings, 94k-word Cantonese lexicon, OpenCC Simplified / HK / Taiwan characters |
 
 All five builds share the same controls, layout, printing and read mode — only the reading system and dictionary size differ.
 
@@ -119,11 +119,13 @@ Every build supports **Simplified / Traditional / English**, all **nine notation
 
 `zhuyin.html` and `plus.html` embed [OpenCC (nk2028/opencc-js)](https://github.com/nk2028/opencc-js) (Apache-2.0), and the input panel offers one-click "Convert to Simplified / Convert to Traditional". "More settings → Conversion" offers **Simplified ⇆ Standard / Taiwan / Hong Kong Traditional**, with "Convert common vocabulary" available for Taiwan and Hong Kong. `zhuyin.html` opens in Traditional Chinese with zhuyin and Taiwan readings (switchable at any time).
 
-**The Cantonese build (`jyutping.html`)** gives Cantonese-speaking children the reading of each character (Jyutping, e.g. 春 ceon1). Tone numbers stay on the baseline as the Linguistic Society of Hong Kong specifies; they are also set in bold and a warm colour, because colour alone would fade into a mid-grey in black-and-white printing — only the weight survives.
+**The Cantonese build (`jyutping.html`)** gives Cantonese-speaking children the reading of each character (Jyutping, e.g. 春 ceon1). Words stay together as Cantonese words with a little space between them, and a word is never split across two lines. Tone numbers stay on the baseline as the Linguistic Society of Hong Kong specifies; they are also set in bold and a warm colour, because colour alone would fade into a mid-grey in black-and-white printing — only the weight survives.
+
+The interface comes in **Simplified / Hong Kong Traditional / English**: the Simplified one speaks in Guangdong terms and the Hong Kong one in Hong Kong terms with Hong Kong characters (「裏」 rather than 「裡」). Read-aloud picks a Cantonese voice on its own instead of falling back to Mandarin, and warns once when the device has none.
 
 It is not a translator: it only shows how each character is read, without changing the wording of the sentence and without promising that a Cantonese speaker would say it that way. Simplified input is converted to Traditional with OpenCC for lookup (the Cantonese lexicon is Traditional), but **the text you see stays as you typed it**.
 
-"More settings → Conversion" offers **Simplified / Taiwan Traditional / Hong Kong Traditional**. Hong Kong *wording* conversion currently covers only a few dozen entries (mostly names of people and places), so everyday words are converted character by character rather than into Hong Kong usage — that is the state of OpenCC's upstream data. Both Hong Kong forms (説 / 裏 / 衞 / 峯) and Taiwan forms (說 / 裡 / 衛 / 峰) come out correctly.
+"More settings → Conversion" offers **Simplified / Taiwan Traditional / Hong Kong Traditional**. Hong Kong *wording* conversion currently covers only a few dozen entries (mostly names of people and places), so mainland terms such as 出租車 or 土豆 are converted character by character rather than into 的士 or 薯仔 — that is the state of OpenCC's upstream data. Both Hong Kong forms (裏 / 衞 / 峯 / 着) and Taiwan forms (裡 / 衛 / 峰 / 著) come out correctly.
 
 > Chrome or Edge is recommended. Phones and tablets work too: the layout stacks vertically and paging becomes continuous scrolling. Fonts can't be installed on a phone, so just use the embedded Andika; read-aloud and follow-along work as usual. Everything runs locally and your text is never uploaded; the network is used only for the optional engine update check and for online fonts (choose none and it is fully offline).
 >
