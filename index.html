@@ -520,12 +520,13 @@ function applyI18n() {
     pinyin: { file: "pinyin.html" },
     plus: { file: "plus.html" },
     zhuyin: { file: "zhuyin.html" },
+    jyutping: { file: "jyutping.html" },
     main: { file: "pinyin.html" }   // 兼容旧链接
   };
   var timer = null;
 
   function vName(v) {
-    return i18nT("v." + v + ".name", { mini: "轻量版", pinyin: "主线版", plus: "完整词典版", zhuyin: "注音版" }[v] || v);
+    return i18nT("v." + v + ".name", { mini: "轻量版", pinyin: "主线版", plus: "完整词典版", zhuyin: "注音版", jyutping: "粤语版" }[v] || v);
   }
   function getChoice() {
     try { return localStorage.getItem(KEY); } catch (e) { return null; }
@@ -613,7 +614,7 @@ function applyI18n() {
     else location.href = info.file;
   }
 
-  // 链接参数直链：?v=pinyin / ?v=plus / ?v=zhuyin / ?v=mini（?v=main 兼容旧分享链接）
+  // 链接参数直链：?v=pinyin / ?v=plus / ?v=zhuyin / ?v=jyutping / ?v=mini（?v=main 兼容旧分享链接）
   var qs = new URLSearchParams(location.search).get("v");
   if (qs && V[qs]) { go(qs); return; }
 
