@@ -135,7 +135,7 @@ const SEO = {
   "pinyin.html": seoMeta("pinyin.html", "主线版", "拼音注音小助手主线版：内置约 3 万常用词词典，支持智能分词（词组连排注音、手动断词合词）。" + COMMON_DESC),
   "plus.html": seoMeta("plus.html", "完整词典版", "拼音注音小助手完整词典版：内嵌 33.7 万词全量词典与 OpenCC 简↔繁转换，成语、专有名词等长尾词也能整体成词，分词更准。" + COMMON_DESC),
   "zhuyin.html": seoMeta("zhuyin.html", "注音版", "拼音注音小助手注音版：預設繁體介面、注音符號（ㄅㄆㄇ，橫排 / 直排）與臺灣讀音（教育部《重編國語辭典修訂本》），內建 OpenCC 簡↔繁轉換與智慧分詞。" + COMMON_DESC),
-  "jyutping.html": seoMeta("jyutping.html", "粵語版", "拼音注音小助手粵語版：給粵語母語的孩子標漢字讀音，粵拼（Jyutping）標注、9.4 萬粵語詞表定音、簡繁與港台用字轉換。這不是普通話翻粵語的翻譯工具。" + COMMON_DESC)
+  "jyutping.html": seoMeta("jyutping.html", "粵語版", "拼音注音小助手粵語版：給粵語母語的孩子標漢字讀音，粵拼（Jyutping）標注、9.4 萬粵語詞表定音、簡體與香港繁體介面、閱讀模式用粵語語音朗讀。這不是普通話翻粵語的翻譯工具。" + COMMON_DESC)
 };
 
 // 5) 构建变体默认值（zhuyin 版差异化：繁体界面 + 注音 + 台湾读音 + OpenCC）
