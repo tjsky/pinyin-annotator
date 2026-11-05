@@ -15,19 +15,22 @@
 //  - /*__VARIANT__*/null  构建变体默认值 JSON（zhuyin: 繁体界面/注音/台湾读音/opencc）
 // 构建版本号：手工维护，发版时随 tag 递增；注入为每个产物 head 内的隐藏注释 <!--build:x.y.z>，
 // 用于部署验证——curl 任一线上页面 grep 该串即可确认平台是否在服务最新 dist（固定常量保证产物逐字节可复现）。
-const BUILD_VERSION = "v1.8.0";
+const BUILD_VERSION = "v1.8.1";
 //  - <!--__SEO_META__-->  各版本 SEO meta（canonical / og 标签，按版本注入）
 const fs = require("fs");
 const path = require("path");
 
 const root = __dirname;
-const template = fs.readFileSync(path.join(root, "template.html"), "utf8");
+// 统一按 LF 读文本资产：仓库以 LF 存储，但 Windows 下 core.autocrlf 会把工作区签出成 CRLF，
+// 原样内嵌会让本地构建比 CI 每行多一个字节，产物就不再逐字节一致。
+const readText = (p) => fs.readFileSync(path.join(root, p), "utf8").replace(/\r\n/g, "\n");
+const template = readText("template.html");
 
 // 1) Andika @font-face 块（:root 之前，已资产化）
-const andikaBlock = fs.readFileSync(path.join(root, "fonts", "andika-face.css.txt"), "utf8");
+const andikaBlock = readText("fonts/andika-face.css.txt");
 
 // 2) pinyin-pro 引擎代码（与运行时一致的 3.29.5 UMD）
-const engineCode = fs.readFileSync(path.join(root, "vendor", "engine-3.29.5.js"), "utf8").trim();
+const engineCode = readText("vendor/engine-3.29.5.js").trim();
 
 // 3) 分词词典 base64
 const zlib = require("zlib");
@@ -105,7 +108,7 @@ const bpmfBlock = [
 ].join("\n");
 
 // 3.6) 拼音→注音 转换算法（snippet 去掉 CommonJS 导出尾部后原样内嵌）
-const py2zyCode = fs.readFileSync(path.join(root, "vendor", "py2zy.snippet.js"), "utf8")
+const py2zyCode = readText("vendor/py2zy.snippet.js")
   .replace(/if \(typeof module[\s\S]*$/, "");
 
 // 3.7) OpenCC full.js UMD（gzip+base64，简↔繁转换；nk2028/opencc-js，Apache-2.0）
