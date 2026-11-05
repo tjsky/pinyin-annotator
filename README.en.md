@@ -3,7 +3,8 @@
 <p align="center">
   <b>Language</b><br />
   <a href="README.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-Switch-lightgrey?style=flat-square"></a>
-  <a href="README.zh-TW.md"><img alt="繁體中文" src="https://img.shields.io/badge/%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-Switch-lightgrey?style=flat-square"></a>
+  <a href="README.zh-TW.md"><img alt="繁體中文（台灣）" src="https://img.shields.io/badge/%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87%EF%BC%88%E5%8F%B0%E7%81%A3%EF%BC%89-Switch-lightgrey?style=flat-square"></a>
+  <a href="README.zh-HK.md"><img alt="繁體中文（香港）" src="https://img.shields.io/badge/%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87%EF%BC%88%E9%A6%99%E6%B8%AF%EF%BC%89-Switch-lightgrey?style=flat-square"></a>
   <a href="README.en.md"><img alt="English" src="https://img.shields.io/badge/English-Current-brightgreen?style=flat-square"></a>
 </p>
 
@@ -49,7 +50,7 @@ Tools that add pinyin to a text for young children usually show ads, upload your
 
 **Nine Mandarin notation systems**, switched from the "Notation" dropdown in the sidebar. Readings are always stored as pinyin, so switching only changes the spelling — manual overrides and Taiwan readings still apply, and the preview, the printout and all five copy formats follow along.
 
-> Jyutping is not one of the nine. Those nine are different spellings of **the same Mandarin readings**, while Jyutping is **a different set of readings** altogether, so it lives in its own Cantonese build (`jyutping.html`, picked from the version chooser).
+> Jyutping is not one of the nine. Those nine are different spellings of **the same readings** — Mandarin, known as 普通话 on the mainland, 國語 in Taiwan and 華語 in Southeast Asia — while Jyutping is **a different set of readings** altogether, so it lives in its own Cantonese build (`jyutping.html`, picked from the version chooser).
 
 | System | What it looks like | Example: 春天来了 |
 | --- | --- | --- |
@@ -185,7 +186,7 @@ Issues and PRs are welcome. Please check [Known issues](#known-issues) and [Road
 **Workflow (important: change source only, never the build output):**
 
 1. Fork the repository and branch off `main`.
-2. **All feature work happens in `template.html`**, the single source file; build scripts and dictionary data live in `build.js` and `seg-dict/`. `main` contains none of the four tool pages — they are generated — so **a PR must not include any build output**.
+2. **All feature work happens in `template.html`**, the single source file; build scripts and dictionary data live in `build.js` and `seg-dict/`. `main` contains none of the five tool pages — they are generated — so **a PR must not include any build output**.
 3. Run `node build.js` locally, then commit and open the PR.
 4. CI builds automatically and attaches the output to the workflow run as **Artifacts**, so you can download and try it.
 5. Once merged, the `dist` branch and the live site update with no manual release step.
